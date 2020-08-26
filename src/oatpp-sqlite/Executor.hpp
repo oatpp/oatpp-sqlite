@@ -41,31 +41,9 @@ namespace oatpp { namespace sqlite {
 
 class Executor : public orm::Executor {
 private:
-
-  class QueryParams {
-  private:
-    std::vector<mapping::Serializer::OutputData> outData;
-  public:
-
-    QueryParams(const StringTemplate& queryTemplate,
-                const std::unordered_map<oatpp::String, oatpp::Void>& params,
-                const mapping::TypeMapper& typeMapper,
-                const mapping::Serializer& serializer);
-
-    int count;
-
-    const char* query;
-    const char* queryName;
-
-    std::vector<int> paramOids;
-    std::vector<const char*> paramValues;
-    std::vector<int> paramLengths;
-    std::vector<int> paramFormats;
-
-  };
-
-private:
-  std::unique_ptr<int[]> getParamTypes(const StringTemplate& queryTemplate, const ParamsTypeMap& paramsTypeMap);
+  void bindParams(sqlite3_stmt* stmt,
+                  const StringTemplate& queryTemplate,
+                  const std::unordered_map<oatpp::String, oatpp::Void>& params);
 private:
   std::shared_ptr<provider::Provider<Connection>> m_connectionProvider;
   std::shared_ptr<mapping::ResultMapper> m_resultMapper;

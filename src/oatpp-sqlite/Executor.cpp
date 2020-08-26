@@ -35,67 +35,10 @@
 
 namespace oatpp { namespace sqlite {
 
-Executor::QueryParams::QueryParams(const StringTemplate& queryTemplate,
-                                   const std::unordered_map<oatpp::String, oatpp::Void>& params,
-                                   const mapping::TypeMapper& typeMapper,
-                                   const mapping::Serializer& serializer)
-{
-
-  auto extra = std::static_pointer_cast<ql_template::Parser::TemplateExtra>(queryTemplate.getExtraData());
-
-  query = extra->preparedTemplate->c_str();
-  queryName = extra->templateName->c_str();
-
-  count = queryTemplate.getTemplateVariables().size();
-
-  outData.resize(count);
-  paramOids.resize(count);
-  paramValues.resize(count);
-  paramLengths.resize(count);
-  paramFormats.resize(count);
-
-  for(v_uint32 i = 0; i < count; i ++) {
-    const auto& var = queryTemplate.getTemplateVariables()[i];
-    auto it = params.find(var.name);
-    if(it == params.end()) {
-      throw std::runtime_error("[oatpp::sqlite::Executor::QueryParams::QueryParams()]: "
-                               "Error. Parameter not found " + var.name->std_str());
-    }
-
-    auto& data = outData[i];
-    serializer.serialize(data, it->second);
-
-    paramOids[i] = typeMapper.getTypeOid(it->second.valueType);
-    paramValues[i] = data.data;
-    paramLengths[i] = data.dataSize;
-    paramFormats[i] = data.dataFormat;
-  }
-
-}
-
 Executor::Executor(const std::shared_ptr<provider::Provider<Connection>>& connectionProvider)
   : m_connectionProvider(connectionProvider)
   , m_resultMapper(std::make_shared<mapping::ResultMapper>())
 {}
-
-
-std::unique_ptr<int[]> Executor::getParamTypes(const StringTemplate& queryTemplate, const ParamsTypeMap& paramsTypeMap) {
-
-  std::unique_ptr<int[]> result(new int[queryTemplate.getTemplateVariables().size()]);
-
-  for(v_uint32 i = 0; i < queryTemplate.getTemplateVariables().size(); i++) {
-    const auto& v = queryTemplate.getTemplateVariables()[i];
-    auto it = paramsTypeMap.find(v.name);
-    if(it == paramsTypeMap.end()) {
-      throw std::runtime_error("[oatpp::sqlite::Executor::getParamTypes()]: Error. "
-                               "Type info not found for variable " + v.name->std_str());
-    }
-    result.get()[i] = m_typeMapper.getTypeOid(it->second);
-  }
-
-  return result;
-
-}
 
 data::share::StringTemplate Executor::parseQueryTemplate(const oatpp::String& name,
                                                          const oatpp::String& text,
@@ -113,16 +56,33 @@ data::share::StringTemplate Executor::parseQueryTemplate(const oatpp::String& na
   ql_template::TemplateValueProvider valueProvider;
   extra->preparedTemplate = t.format(&valueProvider);
 
-  if(prepare) {
-    extra->paramTypes = getParamTypes(t, paramsTypeMap);
-  }
-
   return t;
 
 }
 
 std::shared_ptr<orm::Connection> Executor::getConnection() {
   return m_connectionProvider->get();
+}
+
+void Executor::bindParams(sqlite3_stmt* stmt,
+                          const StringTemplate& queryTemplate,
+                          const std::unordered_map<oatpp::String, oatpp::Void>& params)
+{
+
+  auto count = queryTemplate.getTemplateVariables().size();
+
+  for(v_uint32 i = 0; i < count; i ++) {
+    const auto& var = queryTemplate.getTemplateVariables()[i];
+    auto it = params.find(var.name);
+    if(it == params.end()) {
+      throw std::runtime_error("[oatpp::sqlite::Executor::bindParams()]: "
+                               "Error. Parameter not found " + var.name->std_str());
+    }
+
+    m_serializer.serialize(stmt, i + 1, it->second);
+
+  }
+
 }
 
 std::shared_ptr<orm::QueryResult> Executor::execute(const StringTemplate& queryTemplate,
@@ -139,7 +99,7 @@ std::shared_ptr<orm::QueryResult> Executor::execute(const StringTemplate& queryT
 
   auto extra = std::static_pointer_cast<ql_template::Parser::TemplateExtra>(queryTemplate.getExtraData());
 
-  sqlite3_stmt* stmt;
+  sqlite3_stmt* stmt = nullptr;
   auto res = sqlite3_prepare_v2(pgConnection->getHandle(),
                                 extra->preparedTemplate->c_str(),
                                 extra->preparedTemplate->getSize(),
@@ -147,6 +107,8 @@ std::shared_ptr<orm::QueryResult> Executor::execute(const StringTemplate& queryT
                                 nullptr);
 
   // TODO check for res
+
+  bindParams(stmt, queryTemplate, params);
 
   return std::make_shared<QueryResult>(stmt, pgConnection, m_connectionProvider, m_resultMapper);
 

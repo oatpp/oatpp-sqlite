@@ -196,6 +196,7 @@ public:
       //auto res = client.createUser("admin1", "AdMiN", "admin1@admin.com");
       auto res = client.selectStrs();
       //auto res = client.insertMultipleUsers();
+      //auto res = client.insertStrs("Hello", "Dot", "Param");
 
       if(res->isSuccess()) {
         OATPP_LOGD(TAG, "OK, knownCount=%d, hasMore=%d", res->getKnownCount(), res->hasMoreToFetch());

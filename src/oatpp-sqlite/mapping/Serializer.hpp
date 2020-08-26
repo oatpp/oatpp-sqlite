@@ -26,28 +26,13 @@
 #define oatpp_sqlite_mapping_Serializer_hpp
 
 #include "oatpp/core/Types.hpp"
+#include "sqlite/sqlite3.h"
 
 namespace oatpp { namespace sqlite { namespace mapping {
 
 class Serializer {
 public:
-
-  struct OutputData {
-    std::unique_ptr<char[]> dataBuffer;
-    const char* data;
-    int dataSize;
-    int dataFormat;
-  };
-
-public:
-  typedef void (*SerializerMethod)(OutputData&, const oatpp::Void&);
-private:
-
-  static void serNull(OutputData& outData);
-  static void serInt2(OutputData& outData, v_int16 value);
-  static void serInt4(OutputData& outData, v_int32 value);
-  static void serInt8(OutputData& outData, v_int64 value);
-
+  typedef void (*SerializerMethod)(sqlite3_stmt*, v_uint32, const oatpp::Void&);
 private:
   std::vector<SerializerMethod> m_methods;
 public:
@@ -56,93 +41,31 @@ public:
 
   void setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method);
 
-  void serialize(OutputData& outData, const oatpp::Void& polymorph) const;
+  void serialize(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) const;
 
 public:
 
-  /**
-   * OID used - TEXTOID
-   * @param outData
-   * @param polymorph
-   */
-  static void serializeString(OutputData& outData, const oatpp::Void& polymorph);
+  static void serializeString(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  /**
-   * OID used - INT2OID
-   * @param outData
-   * @param polymorph
-   */
-  static void serializeInt8(OutputData& outData, const oatpp::Void& polymorph);
+  static void serializeInt8(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  /**
-   * OID used - INT2OID
-   * @param outData
-   * @param polymorph
-   */
-  static void serializeUInt8(OutputData& outData, const oatpp::Void& polymorph);
+  static void serializeUInt8(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  /**
-   * OID used - INT2OID
-   * @param outData
-   * @param polymorph
-   */
-  static void serializeInt16(OutputData& outData, const oatpp::Void& polymorph);
+  static void serializeInt16(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  /**
-   * OID used - INT4OID
-   * @param outData
-   * @param polymorph
-   */
-  static void serializeUInt16(OutputData& outData, const oatpp::Void& polymorph);
+  static void serializeUInt16(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  /**
-   * OID used - INT4OID
-   * @param outData
-   * @param polymorph
-   */
-  static void serializeInt32(OutputData& outData, const oatpp::Void& polymorph);
+  static void serializeInt32(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  /**
-   * OID used - INT8OID
-   * @param outData
-   * @param polymorph
-   */
-  static void serializeUInt32(OutputData& outData, const oatpp::Void& polymorph);
+  static void serializeUInt32(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  /**
-   * OID used - INT8OID
-   * @param outData
-   * @param polymorph
-   */
-  static void serializeInt64(OutputData& outData, const oatpp::Void& polymorph);
+  static void serializeInt64(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  /**
-   * Not implemented
-   * @param outData
-   * @param polymorph
-   */
-  static void serializeUInt64(OutputData& outData, const oatpp::Void& polymorph);
+  static void serializeUInt64(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  /**
-   * OID used - FLOAT4OID
-   * @param outData
-   * @param polymorph
-   */
-  static void serializeFloat32(OutputData& outData, const oatpp::Void& polymorph);
+  static void serializeFloat32(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  /**
-   * OID used - FLOAT8OID
-   * @param outData
-   * @param polymorph
-   */
-  static void serializeFloat64(OutputData& outData, const oatpp::Void& polymorph);
-
-  /**
-   * OID used - UUIDOID
-   * @param outData
-   * @param polymorph
-   */
-  static void serializeUuid(OutputData& outData, const oatpp::Void& polymorph);
+  static void serializeFloat64(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
 };
 

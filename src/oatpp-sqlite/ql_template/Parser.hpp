@@ -36,12 +36,9 @@ class Parser {
 public:
 
   struct TemplateExtra {
-
     oatpp::String templateName;
     oatpp::String preparedTemplate;
-    std::unique_ptr<int[]> paramTypes;
     bool prepare;
-
   };
 
 private:

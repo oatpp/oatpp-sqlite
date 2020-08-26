@@ -148,13 +148,21 @@ oatpp::Void Deserializer::deserializeFloat64(const Deserializer* _this, const In
 
 oatpp::Void Deserializer::deserializeAny(const Deserializer* _this, const InData& data, const Type* type) {
   (void) type;
+
+  if(data.isNull) {
+    return oatpp::Void(Any::Class::getType());
+  }
+
   const Type* valueType = _this->m_typeMapper.getOidType(data.oid);
+
   if(valueType == nullptr) {
     throw std::runtime_error("[oatpp::sqlite::mapping::Deserializer::deserializeAny()]: Error. Unknown OID.");
   }
+
   auto value = _this->deserialize(data, valueType);
   auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(value.getPtr(), value.valueType);
   return oatpp::Void(anyHandle, Any::Class::getType());
+
 }
 
 }}}
