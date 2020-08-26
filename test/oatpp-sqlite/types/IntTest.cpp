@@ -79,6 +79,8 @@ public:
 
 };
 
+#include OATPP_CODEGEN_END(DbClient)
+
 }
 
 void IntTest::onRun() {
