@@ -38,7 +38,7 @@ add_library(${OATPP_THIS_MODULE_NAME}
         oatpp-sqlite/QueryResult.cpp
         oatpp-sqlite/QueryResult.hpp
         oatpp-sqlite/Types.hpp
-)
+        oatpp-sqlite/orm.hpp)
 
 set_target_properties(${OATPP_THIS_MODULE_NAME} PROPERTIES
         CXX_STANDARD 11

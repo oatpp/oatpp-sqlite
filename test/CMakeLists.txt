@@ -1,4 +1,16 @@
+add_definitions (
+        -DTEST_DB_FILE="${CMAKE_CURRENT_SOURCE_DIR}/../test_db.sqlite"
+)
+
 add_executable(module-tests
+        oatpp-sqlite/types/BlobTest.cpp
+        oatpp-sqlite/types/BlobTest.hpp
+        oatpp-sqlite/types/FloatTest.cpp
+        oatpp-sqlite/types/FloatTest.hpp
+        oatpp-sqlite/types/IntTest.cpp
+        oatpp-sqlite/types/IntTest.hpp
+        oatpp-sqlite/types/StringTest.cpp
+        oatpp-sqlite/types/StringTest.hpp
         oatpp-sqlite/tests.cpp
 )
 
