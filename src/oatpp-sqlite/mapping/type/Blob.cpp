@@ -22,18 +22,26 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_sqlite_Types_hpp
-#define oatpp_sqlite_Types_hpp
+#include "Blob.hpp"
+#include "oatpp/encoding/Hex.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
-#include "mapping/type/Blob.hpp"
+namespace oatpp { namespace sqlite { namespace mapping { namespace type {
 
-namespace oatpp { namespace sqlite {
+namespace __class {
 
-/**
- * Convenience typedef for &id:oatpp::sqlite::mapping::type::Blob;.
- */
-typedef mapping::type::Blob Blob;
+  const oatpp::ClassId Blob::CLASS_ID("oatpp::sqlite::Blob");
 
-}}
+  oatpp::Type* Blob::getType() {
+    static Type type(
+      CLASS_ID, nullptr, nullptr, nullptr, nullptr,
+      {
+        {"sqlite", new Inter()}
+      }
+    );
+    return &type;
+  }
 
-#endif // oatpp_sqlite_Types_hpp
+}
+
+}}}}

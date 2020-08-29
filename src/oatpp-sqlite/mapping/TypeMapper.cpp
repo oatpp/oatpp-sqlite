@@ -64,10 +64,15 @@ TypeMapper::TypeMapper() {
     setTypeOid(data::mapping::type::__class::AbstractPairList::CLASS_ID, 0);
     setTypeOid(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, 0);
 
+    // sqlite
+
+    setTypeOid(mapping::type::__class::Blob::CLASS_ID, SQLITE_BLOB);
+
   }
 
   {
     setOidType(SQLITE3_TEXT, oatpp::String::Class::getType());
+    setOidType(SQLITE_BLOB, oatpp::sqlite::Blob::Class::getType());
     setOidType(SQLITE_INTEGER, oatpp::Int64::Class::getType());
     setOidType(SQLITE_FLOAT, oatpp::Float64::Class::getType());
   }

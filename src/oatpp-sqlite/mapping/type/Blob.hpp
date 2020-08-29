@@ -22,78 +22,40 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_sqlite_mapping_type_Uuid_hpp
-#define oatpp_sqlite_mapping_type_Uuid_hpp
+#ifndef oatpp_sqlite_mapping_type_Blob_hpp
+#define oatpp_sqlite_mapping_type_Blob_hpp
 
+#include "oatpp/encoding/Base64.hpp"
 #include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace sqlite { namespace mapping { namespace type {
 
 namespace __class {
-  class Uuid;
+  class Blob;
 }
 
-class UuidObject {
-public:
-  /**
-   * Size of UUID data in bytes.
-   */
-  static constexpr v_buff_size DATA_SIZE = 16;
-private:
-  v_char8 m_data[DATA_SIZE];
-public:
-
-  /**
-   * Constructor.
-   * @param data
-   */
-  UuidObject(v_char8 data[DATA_SIZE]);
-
-  /**
-   * Constructor.
-   * @param text
-   */
-  UuidObject(const oatpp::String& text);
-
-  /**
-   * Get raw data of ObjectId.
-   * @return
-   */
-  const p_char8 getData() const;
-
-  /**
-   * Get size of ObjectId data.
-   * @return - &l:ObjectId::DATA_SIZE;.
-   */
-  v_buff_size getSize() const;
-
-  /**
-   * To hex string.
-   * @return
-   */
-  oatpp::String toString() const;
-
-  bool operator==(const UuidObject &other) const;
-  bool operator!=(const UuidObject &other) const;
-
-};
-
-typedef oatpp::data::mapping::type::Primitive<UuidObject, __class::Uuid> Uuid;
+typedef oatpp::data::mapping::type::ObjectWrapper<base::StrBuffer, __class::Blob> Blob;
 
 namespace __class {
 
-class Uuid {
+class Blob {
 public:
 
-  class Inter : public oatpp::Type::Interpretation<type::Uuid, oatpp::String>  {
+  class Inter : public oatpp::Type::Interpretation<type::Blob, oatpp::String>  {
   public:
 
-    oatpp::String interpret(const type::Uuid& value) const override {
-      return value->toString();
+    oatpp::String interpret(const type::Blob& value) const override {
+      if(value) {
+        return encoding::Base64::encode(value->getData(), value->getSize());
+      }
+      return nullptr;
     }
 
-    type::Uuid reproduce(const oatpp::String& value) const override {
-      return std::make_shared<UuidObject>(value);
+    type::Blob reproduce(const oatpp::String& value) const override {
+      if(value) {
+        return encoding::Base64::decode(value).getPtr();
+      }
+      return nullptr;
     }
 
   };
@@ -109,4 +71,4 @@ public:
 
 }}}}
 
-#endif // oatpp_sqlite_mapping_type_Uuid_hpp
+#endif // oatpp_sqlite_mapping_type_Blob_hpp

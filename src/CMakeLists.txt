@@ -3,20 +3,13 @@ add_library(sqlite
         sqlite/sqlite3.h
 )
 
-#set_target_properties(sqlite PROPERTIES
-#        LINKER_LANGUAGE CXX
-#        CXX_STANDARD 11
-#        CXX_EXTENSIONS OFF
-#        CXX_STANDARD_REQUIRED ON
-#)
-
 target_include_directories(sqlite PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
 add_library(${OATPP_THIS_MODULE_NAME}
-        oatpp-sqlite/mapping/type/Uuid.cpp
-        oatpp-sqlite/mapping/type/Uuid.hpp
+        oatpp-sqlite/mapping/type/Blob.cpp
+        oatpp-sqlite/mapping/type/Blob.hpp
         oatpp-sqlite/mapping/Deserializer.cpp
         oatpp-sqlite/mapping/Deserializer.hpp
         oatpp-sqlite/mapping/ResultMapper.cpp

@@ -66,6 +66,7 @@ public:
 public:
 
   static oatpp::Void deserializeString(const Deserializer* _this, const InData& data, const Type* type);
+  static oatpp::Void deserializeBlob(const Deserializer* _this, const InData& data, const Type* type);
 
   template<class IntWrapper>
   static oatpp::Void deserializeInt(const Deserializer* _this, const InData& data, const Type* type) {

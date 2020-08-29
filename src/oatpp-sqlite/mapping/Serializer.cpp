@@ -67,6 +67,10 @@ Serializer::Serializer() {
   setSerializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, nullptr);
   setSerializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, nullptr);
 
+  // sqlite
+
+  setSerializerMethod(mapping::type::__class::Blob::CLASS_ID, &Serializer::serializeBlob);
+
 }
 
 void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method) {
@@ -97,6 +101,15 @@ void Serializer::serializeString(sqlite3_stmt* stmt, v_uint32 paramIndex, const 
   if(polymorph) {
     base::StrBuffer *buff = static_cast<base::StrBuffer *>(polymorph.get());
     sqlite3_bind_text(stmt, paramIndex, buff->c_str(), buff->getSize(), nullptr);
+  } else {
+    sqlite3_bind_null(stmt, paramIndex);
+  }
+}
+
+void Serializer::serializeBlob(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
+  if(polymorph) {
+    base::StrBuffer *buff = static_cast<base::StrBuffer *>(polymorph.get());
+    sqlite3_bind_blob(stmt, paramIndex, buff->c_str(), buff->getSize(), nullptr);
   } else {
     sqlite3_bind_null(stmt, paramIndex);
   }

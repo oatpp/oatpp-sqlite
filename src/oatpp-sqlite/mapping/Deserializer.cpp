@@ -67,6 +67,10 @@ Deserializer::Deserializer() {
   setDeserializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, nullptr);
   setDeserializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, nullptr);
 
+  // sqlite
+
+  setDeserializerMethod(mapping::type::__class::Blob::CLASS_ID, &Deserializer::deserializeBlob);
+
 }
 
 void Deserializer::setDeserializerMethod(const data::mapping::type::ClassId& classId, DeserializerMethod method) {
@@ -111,6 +115,21 @@ oatpp::Void Deserializer::deserializeString(const Deserializer* _this, const InD
   auto ptr = (const char*) sqlite3_column_text(data.stmt, data.col);
   auto size = sqlite3_column_bytes(data.stmt, data.col);
   return oatpp::String(ptr, size, true);
+
+}
+
+oatpp::Void Deserializer::deserializeBlob(const Deserializer* _this, const InData& data, const Type* type) {
+
+  (void) _this;
+  (void) type;
+
+  if(data.isNull) {
+    return oatpp::String();
+  }
+
+  auto ptr = (const char*) sqlite3_column_blob(data.stmt, data.col);
+  auto size = sqlite3_column_bytes(data.stmt, data.col);
+  return sqlite::Blob(base::StrBuffer::createShared(ptr, size, true));
 
 }
 

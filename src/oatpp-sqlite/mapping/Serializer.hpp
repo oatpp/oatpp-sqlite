@@ -47,6 +47,8 @@ public:
 
   static void serializeString(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
+  static void serializeBlob(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+
   static void serializeInt8(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
   static void serializeUInt8(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
