@@ -55,7 +55,7 @@ Deserializer::Deserializer() {
 
   setDeserializerMethod(data::mapping::type::__class::Float32::CLASS_ID, &Deserializer::deserializeFloat32);
   setDeserializerMethod(data::mapping::type::__class::Float64::CLASS_ID, &Deserializer::deserializeFloat64);
-  setDeserializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, nullptr);
+  setDeserializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, &Deserializer::deserializeInt<oatpp::Boolean>);
 
   setDeserializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, nullptr);
   setDeserializerMethod(data::mapping::type::__class::AbstractEnum::CLASS_ID, nullptr);
@@ -108,15 +108,9 @@ oatpp::Void Deserializer::deserializeString(const Deserializer* _this, const InD
     return oatpp::String();
   }
 
-  switch(data.oid) {
-    case SQLITE3_TEXT: {
-      auto ptr = (const char*) sqlite3_column_text(data.stmt, data.col);
-      auto size = sqlite3_column_bytes(data.stmt, data.col);
-      return oatpp::String(ptr, size, true);
-    }
-  }
-
-  throw std::runtime_error("[oatpp::sqlite::mapping::Deserializer::deserializeString()]: Error. Unknown OID.");
+  auto ptr = (const char*) sqlite3_column_text(data.stmt, data.col);
+  auto size = sqlite3_column_bytes(data.stmt, data.col);
+  return oatpp::String(ptr, size, true);
 
 }
 
@@ -129,7 +123,12 @@ oatpp::Void Deserializer::deserializeFloat32(const Deserializer* _this, const In
     return oatpp::Float32();
   }
 
-  return oatpp::Float32(sqlite3_column_double(data.stmt, data.col));
+  switch(data.oid) {
+    case SQLITE_INTEGER:
+    case SQLITE_FLOAT: return oatpp::Float32(sqlite3_column_double(data.stmt, data.col));
+  }
+
+  throw std::runtime_error("[oatpp::sqlite::mapping::Deserializer::deserializeFloat32()]: Error. Unknown OID.");
 
 }
 
@@ -142,7 +141,12 @@ oatpp::Void Deserializer::deserializeFloat64(const Deserializer* _this, const In
     return oatpp::Float64();
   }
 
-  return oatpp::Float64(sqlite3_column_double(data.stmt, data.col));
+  switch(data.oid) {
+    case SQLITE_INTEGER:
+    case SQLITE_FLOAT: return oatpp::Float64(sqlite3_column_double(data.stmt, data.col));
+  }
+
+  throw std::runtime_error("[oatpp::sqlite::mapping::Deserializer::deserializeFloat64()]: Error. Unknown OID.");
 
 }
 

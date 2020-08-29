@@ -78,8 +78,6 @@ public:
 
   QUERY(selectAllInts, "SELECT * FROM test_ints")
 
-  QUERY(selectAllNums, "SELECT * FROM test_numerics")
-
 };
 
 #include OATPP_CODEGEN_END(DbClient)
@@ -173,27 +171,6 @@ void IntTest::onRun() {
       OATPP_ASSERT(row->f_int32 == std::numeric_limits<v_int32>::max());
       OATPP_ASSERT(row->f_int64 == std::numeric_limits<v_int64>::max());
     }
-
-  }
-
-  {
-    auto res = client.selectAllNums();
-    if(res->isSuccess()) {
-      OATPP_LOGD(TAG, "OK, knownCount=%d, hasMore=%d", res->getKnownCount(), res->hasMoreToFetch());
-    } else {
-      auto message = res->getErrorMessage();
-      OATPP_LOGD(TAG, "Error, message=%s", message->c_str());
-    }
-
-    auto dataset = res->fetch<oatpp::Vector<oatpp::Fields<oatpp::Any>>>();
-
-    oatpp::parser::json::mapping::ObjectMapper om;
-    om.getSerializer()->getConfig()->useBeautifier = true;
-    om.getSerializer()->getConfig()->enableInterpretations = {"sqlite"};
-
-    auto str = om.writeToString(dataset);
-
-    OATPP_LOGD(TAG, "res=%s", str->c_str());
 
   }
 

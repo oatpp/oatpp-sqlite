@@ -67,6 +67,8 @@ public:
 
   static void serializeFloat64(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
+  static void serializeBoolean(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+
 };
 
 }}}

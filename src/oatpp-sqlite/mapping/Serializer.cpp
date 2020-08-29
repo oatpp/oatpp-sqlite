@@ -55,7 +55,7 @@ Serializer::Serializer() {
 
   setSerializerMethod(data::mapping::type::__class::Float32::CLASS_ID, &Serializer::serializeFloat32);
   setSerializerMethod(data::mapping::type::__class::Float64::CLASS_ID, &Serializer::serializeFloat64);
-  setSerializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, nullptr);
+  setSerializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, &Serializer::serializeBoolean);
 
   setSerializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, nullptr);
   setSerializerMethod(data::mapping::type::__class::AbstractEnum::CLASS_ID, nullptr);
@@ -188,6 +188,15 @@ void Serializer::serializeFloat64(sqlite3_stmt* stmt, v_uint32 paramIndex, const
     auto v = polymorph.staticCast<oatpp::Float64>();
     sqlite3_bind_double(stmt, paramIndex, *v);
   } else{
+    sqlite3_bind_null(stmt, paramIndex);
+  }
+}
+
+void Serializer::serializeBoolean(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
+  if(polymorph) {
+    auto v = polymorph.staticCast<oatpp::Boolean>();
+    sqlite3_bind_int(stmt, paramIndex, (int)*v);
+  } else {
     sqlite3_bind_null(stmt, paramIndex);
   }
 }

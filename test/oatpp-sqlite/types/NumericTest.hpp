@@ -22,12 +22,19 @@
  *
  ***************************************************************************/
 
-#include "FloatTest.hpp"
+#ifndef oatpp_test_sqlite_types_NumericTest_hpp
+#define oatpp_test_sqlite_types_NumericTest_hpp
+
+#include "oatpp-test/UnitTest.hpp"
 
 namespace oatpp { namespace test { namespace sqlite { namespace types {
 
-void FloatTest::onRun() {
-
-}
+class NumericTest : public UnitTest {
+public:
+  NumericTest() : UnitTest("TEST[sqlite::types::NumericTest]") {}
+  void onRun() override;
+};
 
 }}}}
+
+#endif // oatpp_test_sqlite_types_NumericTest_hpp
