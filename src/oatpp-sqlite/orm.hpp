@@ -28,6 +28,7 @@
 #include "Executor.hpp"
 #include "Types.hpp"
 
+#include "oatpp/orm/SchemaMigration.hpp"
 #include "oatpp/orm/DbClient.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 

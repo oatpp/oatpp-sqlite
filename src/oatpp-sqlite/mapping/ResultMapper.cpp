@@ -50,7 +50,6 @@ void ResultMapper::ResultData::next() {
 
   switch(res) {
 
-    case SQLITE_OK:
     case SQLITE_ROW: {
       hasMore = true;
       isSuccess = true;

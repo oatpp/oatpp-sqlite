@@ -28,6 +28,7 @@
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 
 #include <limits>
+#include <cstdio>
 
 namespace oatpp { namespace test { namespace sqlite { namespace types {
 
@@ -55,15 +56,15 @@ public:
 
   MyClient(const std::shared_ptr<oatpp::orm::Executor>& executor)
     : oatpp::orm::DbClient(executor)
-  {}
+  {
+    oatpp::orm::SchemaMigration migration(executor, "IntTest");
+    migration.addFile(1, TEST_DB_MIGRATION "IntTest.sql");
+    migration.migrate();
 
-  QUERY(createTables,
-        "CREATE TABLE test_ints ( "
-        "  f_int8    TINYINT, "
-        "  f_int16   SMALLINT, "
-        "  f_int32   MEDIUMINT, "
-        "  f_int64   BIGINT "
-        ");")
+    auto version = executor->getSchemaVersion("IntTest");
+    OATPP_LOGD("DbClient", "Migration - OK. Version=%d.", version);
+
+  }
 
   QUERY(insertIntValues,
         "INSERT INTO test_ints "
@@ -77,6 +78,8 @@ public:
 
   QUERY(selectAllInts, "SELECT * FROM test_ints")
 
+  QUERY(selectAllNums, "SELECT * FROM test_numerics")
+
 };
 
 #include OATPP_CODEGEN_END(DbClient)
@@ -86,20 +89,12 @@ public:
 void IntTest::onRun() {
 
   OATPP_LOGI(TAG, "DB-File='%s'", TEST_DB_FILE);
+  std::remove(TEST_DB_FILE);
 
   auto connectionProvider = std::make_shared<oatpp::sqlite::ConnectionProvider>(TEST_DB_FILE);
   auto executor = std::make_shared<oatpp::sqlite::Executor>(connectionProvider);
-  auto client = MyClient(executor);
 
-  {
-    auto res = client.createTables();
-    if(res->isSuccess()) {
-      OATPP_LOGD(TAG, "OK, knownCount=%d, hasMore=%d", res->getKnownCount(), res->hasMoreToFetch());
-    } else {
-      auto message = res->getErrorMessage();
-      OATPP_LOGD(TAG, "Error, message=%s", message->c_str());
-    }
-  }
+  auto client = MyClient(executor);
 
   {
     auto connection = client.getConnection();
@@ -181,6 +176,26 @@ void IntTest::onRun() {
 
   }
 
+  {
+    auto res = client.selectAllNums();
+    if(res->isSuccess()) {
+      OATPP_LOGD(TAG, "OK, knownCount=%d, hasMore=%d", res->getKnownCount(), res->hasMoreToFetch());
+    } else {
+      auto message = res->getErrorMessage();
+      OATPP_LOGD(TAG, "Error, message=%s", message->c_str());
+    }
+
+    auto dataset = res->fetch<oatpp::Vector<oatpp::Fields<oatpp::Any>>>();
+
+    oatpp::parser::json::mapping::ObjectMapper om;
+    om.getSerializer()->getConfig()->useBeautifier = true;
+    om.getSerializer()->getConfig()->enableInterpretations = {"sqlite"};
+
+    auto str = om.writeToString(dataset);
+
+    OATPP_LOGD(TAG, "res=%s", str->c_str());
+
+  }
 
 }
 

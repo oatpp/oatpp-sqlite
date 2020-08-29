@@ -1,5 +1,6 @@
 add_definitions (
         -DTEST_DB_FILE="${CMAKE_CURRENT_SOURCE_DIR}/../test_db.sqlite"
+        -DTEST_DB_MIGRATION="${CMAKE_CURRENT_SOURCE_DIR}/oatpp-sqlite/migration/"
 )
 
 add_executable(module-tests

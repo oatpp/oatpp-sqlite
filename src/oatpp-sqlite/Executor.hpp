@@ -44,6 +44,15 @@ private:
   void bindParams(sqlite3_stmt* stmt,
                   const StringTemplate& queryTemplate,
                   const std::unordered_map<oatpp::String, oatpp::Void>& params);
+
+  std::shared_ptr<orm::QueryResult> exec(const oatpp::String& statement,
+                                         const std::shared_ptr<orm::Connection>& connection = nullptr);
+
+  oatpp::String getSchemaVersionTableName(const oatpp::String& suffix);
+  std::shared_ptr<orm::QueryResult> updateSchemaVersion(v_int64 newVersion,
+                                                        const oatpp::String& suffix,
+                                                        const std::shared_ptr<orm::Connection>& connection);
+
 private:
   std::shared_ptr<provider::Provider<Connection>> m_connectionProvider;
   std::shared_ptr<mapping::ResultMapper> m_resultMapper;
@@ -69,6 +78,14 @@ public:
   std::shared_ptr<orm::QueryResult> commit(const std::shared_ptr<orm::Connection>& connection) override;
 
   std::shared_ptr<orm::QueryResult> rollback(const std::shared_ptr<orm::Connection>& connection) override;
+
+  v_int64 getSchemaVersion(const oatpp::String& suffix = nullptr,
+                           const std::shared_ptr<orm::Connection>& connection = nullptr) override;
+
+  void migrateSchema(const oatpp::String& script,
+                     v_int64 newVersion,
+                     const oatpp::String& suffix = nullptr,
+                     const std::shared_ptr<orm::Connection>& connection = nullptr) override;
 
 };
 

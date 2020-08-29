@@ -29,11 +29,29 @@
 
 #include "QueryResult.hpp"
 
+#include "oatpp/orm/Transaction.hpp"
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/core/macro/codegen.hpp"
 
 #include <vector>
 
 namespace oatpp { namespace sqlite {
+
+namespace {
+
+#include OATPP_CODEGEN_BEGIN(DTO)
+
+class VersionRow : public oatpp::DTO {
+
+  DTO_INIT(VersionRow, DTO);
+
+  DTO_FIELD(Int64, version);
+
+};
+
+#include OATPP_CODEGEN_END(DTO)
+
+}
 
 Executor::Executor(const std::shared_ptr<provider::Provider<Connection>>& connectionProvider)
   : m_connectionProvider(connectionProvider)
@@ -114,7 +132,9 @@ std::shared_ptr<orm::QueryResult> Executor::execute(const StringTemplate& queryT
 
 }
 
-std::shared_ptr<orm::QueryResult> Executor::begin(const std::shared_ptr<orm::Connection>& connection) {
+std::shared_ptr<orm::QueryResult> Executor::exec(const oatpp::String& statement,
+                                                 const std::shared_ptr<orm::Connection>& connection)
+{
 
   std::shared_ptr<orm::Connection> conn = connection;
   if(!conn) {
@@ -123,23 +143,154 @@ std::shared_ptr<orm::QueryResult> Executor::begin(const std::shared_ptr<orm::Con
 
   auto pgConnection = std::static_pointer_cast<sqlite::Connection>(conn);
   sqlite3_stmt* stmt;
-  auto res = sqlite3_prepare_v2(pgConnection->getHandle(), "BEGIN", -1, &stmt, nullptr);
+  auto res = sqlite3_prepare_v2(pgConnection->getHandle(), statement->c_str(), -1, &stmt, nullptr);
   return std::make_shared<QueryResult>(stmt, pgConnection, m_connectionProvider, m_resultMapper);
 
+}
+
+std::shared_ptr<orm::QueryResult> Executor::begin(const std::shared_ptr<orm::Connection>& connection) {
+  return exec("BEGIN", connection);
 }
 
 std::shared_ptr<orm::QueryResult> Executor::commit(const std::shared_ptr<orm::Connection>& connection) {
-  auto pgConnection = std::static_pointer_cast<sqlite::Connection>(connection);
-  sqlite3_stmt* stmt;
-  auto res = sqlite3_prepare_v2(pgConnection->getHandle(), "COMMIT", -1, &stmt, nullptr);
-  return std::make_shared<QueryResult>(stmt, pgConnection, m_connectionProvider, m_resultMapper);
+  return exec("COMMIT", connection);
 }
 
 std::shared_ptr<orm::QueryResult> Executor::rollback(const std::shared_ptr<orm::Connection>& connection) {
-  auto pgConnection = std::static_pointer_cast<sqlite::Connection>(connection);
-  sqlite3_stmt* stmt;
-  auto res = sqlite3_prepare_v2(pgConnection->getHandle(), "ROLLBACK", -1, &stmt, nullptr);
-  return std::make_shared<QueryResult>(stmt, pgConnection, m_connectionProvider, m_resultMapper);
+  return exec("ROLLBACK", connection);
+}
+
+oatpp::String Executor::getSchemaVersionTableName(const oatpp::String& suffix) {
+  data::stream::BufferOutputStream stream;
+  stream << "oatpp_schema_version";
+  if (suffix && suffix->getSize() > 0) {
+    stream << "_" << suffix;
+  }
+  return stream.toString();
+}
+
+std::shared_ptr<orm::QueryResult> Executor::updateSchemaVersion(v_int64 newVersion,
+                                                                const oatpp::String& suffix,
+                                                                const std::shared_ptr<orm::Connection>& connection)
+{
+  data::stream::BufferOutputStream stream;
+  stream
+  << "UPDATE "
+  << getSchemaVersionTableName(suffix) << " "
+  << "SET version=" << newVersion << ";";
+  return exec(stream.toString(), connection);
+}
+
+v_int64 Executor::getSchemaVersion(const oatpp::String& suffix,
+                                   const std::shared_ptr<orm::Connection>& connection)
+{
+
+  std::shared_ptr<orm::QueryResult> result;
+
+  {
+    data::stream::BufferOutputStream stream;
+    stream << "CREATE TABLE IF NOT EXISTS " << getSchemaVersionTableName(suffix) << " (version BIGINT)";
+    result = exec(stream.toString(), connection);
+    if(!result->isSuccess()) {
+      throw std::runtime_error("[oatpp::sqlite::Executor::getSchemaVersion()]: "
+                               "Error. Can't create schema version table. " + result->getErrorMessage()->std_str());
+    }
+  }
+
+  data::stream::BufferOutputStream stream;
+  stream << "SELECT * FROM " << getSchemaVersionTableName(suffix);
+  result = exec(stream.toString(), result->getConnection());
+  if(!result->isSuccess()) {
+    throw std::runtime_error("[oatpp::sqlite::Executor::getSchemaVersion()]: "
+                             "Error. Can't get schema version. " + result->getErrorMessage()->std_str());
+  }
+
+  auto rows = result->fetch<oatpp::Vector<oatpp::Object<VersionRow>>>();
+
+  if(rows->size() == 0) {
+
+    stream.setCurrentPosition(0);
+    stream << "INSERT INTO " << getSchemaVersionTableName(suffix) << " (version) VALUES (0)";
+    result = exec(stream.toString(), result->getConnection());
+
+    if(result->isSuccess()) {
+      return 0;
+    }
+
+    throw std::runtime_error("[oatpp::sqlite::Executor::getSchemaVersion()]: "
+                             "Error. Can't init schema version. " + result->getErrorMessage()->std_str());
+
+  } else if(rows->size() == 1) {
+
+    auto row = rows[0];
+    if(!row->version) {
+      throw std::runtime_error("[oatpp::sqlite::Executor::getSchemaVersion()]: "
+                               "Error. The schema version table is corrupted - version is null.");
+    }
+
+    return row->version;
+
+  }
+
+  throw std::runtime_error("[oatpp::sqlite::Executor::getSchemaVersion()]: "
+                           "Error. The schema version table is corrupted - multiple version rows.");
+
+}
+
+void Executor::migrateSchema(const oatpp::String& script,
+                             v_int64 newVersion,
+                             const oatpp::String& suffix,
+                             const std::shared_ptr<orm::Connection>& connection)
+{
+
+  if(!script) {
+    throw std::runtime_error("[oatpp::sqlite::Executor::migrateSchema()]: Error. Script is null.");
+  }
+
+  if(!connection) {
+    throw std::runtime_error("[oatpp::sqlite::Executor::migrateSchema()]: Error. Connection is null.");
+  }
+
+  auto currVersion = getSchemaVersion(suffix, connection);
+  if(newVersion <= currVersion) {
+    return;
+  }
+
+  if(newVersion > currVersion + 1) {
+    throw std::runtime_error("[oatpp::sqlite::Executor::migrateSchema()]: Error. +1 version increment is allowed only.");
+  }
+
+  if(script->getSize() == 0) {
+    OATPP_LOGW("[oatpp::sqlite::Executor::migrateSchema()]", "Warning. Executing empty script for version %d", newVersion);
+  }
+
+  {
+
+    auto nativeConnection = std::static_pointer_cast<sqlite::Connection>(connection);
+    orm::Transaction transaction(this, nativeConnection);
+
+    char* errmsg = nullptr;
+    sqlite3_exec(nativeConnection->getHandle(), script->c_str(), nullptr, nullptr, &errmsg);
+
+    if(errmsg) {
+      OATPP_LOGE("[oatpp::sqlite::Executor::migrateSchema()]", "Error. Migration failed for version %d. %s", newVersion, errmsg);
+      throw std::runtime_error("[oatpp::sqlite::Executor::migrateSchema()]: Error. Migration failed. " + std::string((const char*) errmsg));
+    }
+
+    std::shared_ptr<orm::QueryResult> result;
+    result = updateSchemaVersion(newVersion, suffix, nativeConnection);
+
+    if(!result->isSuccess() || result->hasMoreToFetch() > 0) {
+      throw std::runtime_error("[oatpp::sqlite::Executor::migrateSchema()]: Error. Migration failed. Can't set newversion.");
+    }
+
+    result = transaction.commit();
+    if(!result->isSuccess()) {
+      throw std::runtime_error("[oatpp::sqlite::Executor::migrateSchema()]: Error. Migration failed. Can't commit.");
+    }
+
+  }
+
 }
 
 }}
