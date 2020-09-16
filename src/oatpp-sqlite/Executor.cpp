@@ -153,10 +153,18 @@ std::shared_ptr<orm::QueryResult> Executor::begin(const std::shared_ptr<orm::Con
 }
 
 std::shared_ptr<orm::QueryResult> Executor::commit(const std::shared_ptr<orm::Connection>& connection) {
+  if(!connection) {
+    throw std::runtime_error("[oatpp::sqlite::Executor::commit()]: "
+                             "Error. Can't COMMIT - NULL connection.");
+  }
   return exec("COMMIT", connection);
 }
 
 std::shared_ptr<orm::QueryResult> Executor::rollback(const std::shared_ptr<orm::Connection>& connection) {
+  if(!connection) {
+    throw std::runtime_error("[oatpp::sqlite::Executor::commit()]: "
+                             "Error. Can't ROLLBACK - NULL connection.");
+  }
   return exec("ROLLBACK", connection);
 }
 
@@ -281,7 +289,7 @@ void Executor::migrateSchema(const oatpp::String& script,
     result = updateSchemaVersion(newVersion, suffix, nativeConnection);
 
     if(!result->isSuccess() || result->hasMoreToFetch() > 0) {
-      throw std::runtime_error("[oatpp::sqlite::Executor::migrateSchema()]: Error. Migration failed. Can't set newversion.");
+      throw std::runtime_error("[oatpp::sqlite::Executor::migrateSchema()]: Error. Migration failed. Can't set new version.");
     }
 
     result = transaction.commit();
