@@ -41,6 +41,16 @@ namespace oatpp { namespace sqlite {
 
 class Executor : public orm::Executor {
 private:
+
+  struct DtoParam {
+    oatpp::String name;
+    std::vector<std::string> propertyPath;
+  };
+
+  DtoParam paramNameAsDtoParam(const oatpp::String& paramName);
+
+private:
+
   void bindParams(sqlite3_stmt* stmt,
                   const StringTemplate& queryTemplate,
                   const std::unordered_map<oatpp::String, oatpp::Void>& params);
@@ -58,6 +68,7 @@ private:
   std::shared_ptr<mapping::ResultMapper> m_resultMapper;
   mapping::TypeMapper m_typeMapper;
   mapping::Serializer m_serializer;
+  data::mapping::type::BaseObject::PropertyTraverser m_objectTraverser;
 public:
 
   Executor(const std::shared_ptr<provider::Provider<Connection>>& connectionProvider);

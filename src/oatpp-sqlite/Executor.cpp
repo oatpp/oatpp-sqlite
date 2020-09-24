@@ -28,6 +28,7 @@
 #include "ql_template/TemplateValueProvider.hpp"
 
 #include "QueryResult.hpp"
+#include "Types.hpp"
 
 #include "oatpp/orm/Transaction.hpp"
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
@@ -56,13 +57,19 @@ class VersionRow : public oatpp::DTO {
 Executor::Executor(const std::shared_ptr<provider::Provider<Connection>>& connectionProvider)
   : m_connectionProvider(connectionProvider)
   , m_resultMapper(std::make_shared<mapping::ResultMapper>())
-{}
+{
+  m_objectTraverser.addKnownTypes({
+    Blob::Class::CLASS_ID
+  });
+}
 
 data::share::StringTemplate Executor::parseQueryTemplate(const oatpp::String& name,
                                                          const oatpp::String& text,
                                                          const ParamsTypeMap& paramsTypeMap,
                                                          bool prepare)
 {
+
+  (void) paramsTypeMap;
 
   auto&& t = ql_template::Parser::parseTemplate(text);
 
@@ -82,6 +89,32 @@ std::shared_ptr<orm::Connection> Executor::getConnection() {
   return m_connectionProvider->get();
 }
 
+Executor::DtoParam Executor::paramNameAsDtoParam(const oatpp::String& paramName) {
+
+  parser::Caret caret(paramName);
+  auto nameLabel = caret.putLabel();
+  if(caret.findChar('.') && caret.getPosition() < caret.getDataSize() - 1) {
+
+    DtoParam result;
+    result.name = nameLabel.toString();
+
+    do {
+
+      caret.inc();
+      auto label = caret.putLabel();
+      caret.findChar('.');
+      result.propertyPath.push_back(label.std_str());
+
+    } while (caret.getPosition() < caret.getDataSize());
+
+    return result;
+
+  }
+
+  return {};
+
+}
+
 void Executor::bindParams(sqlite3_stmt* stmt,
                           const StringTemplate& queryTemplate,
                           const std::unordered_map<oatpp::String, oatpp::Void>& params)
@@ -92,12 +125,26 @@ void Executor::bindParams(sqlite3_stmt* stmt,
   for(v_uint32 i = 0; i < count; i ++) {
     const auto& var = queryTemplate.getTemplateVariables()[i];
     auto it = params.find(var.name);
-    if(it == params.end()) {
-      throw std::runtime_error("[oatpp::sqlite::Executor::bindParams()]: "
-                               "Error. Parameter not found " + var.name->std_str());
+
+    if(it != params.end()) {
+      m_serializer.serialize(stmt, i + 1, it->second);
+      continue;
     }
 
-    m_serializer.serialize(stmt, i + 1, it->second);
+    auto dtoParam = paramNameAsDtoParam(var.name);
+    if(dtoParam.name) {
+      it = params.find(dtoParam.name);
+      if(it != params.end() && it->second.valueType->classId.id == data::mapping::type::__class::AbstractObject::CLASS_ID.id) {
+        auto value = m_objectTraverser.findPropertyValue(it->second, dtoParam.propertyPath, {});
+        if(value.valueType->classId.id != oatpp::Void::Class::CLASS_ID.id) {
+          m_serializer.serialize(stmt, i + 1, value);
+          continue;
+        }
+      }
+    }
+
+    throw std::runtime_error("[oatpp::sqlite::Executor::bindParams()]: "
+                             "Error. Parameter not found " + var.name->std_str());
 
   }
 
