@@ -72,7 +72,7 @@ public:
         "(f_number, f_decimal, f_bool, f_date, f_datetime) "
         "VALUES "
         "(:row.f_number, :row.f_decimal, :row.f_bool, date(:row.f_date), datetime(:row.f_datetime));",
-        PARAMS_DTO(oatpp::Object<NumsRow>, row))
+        PARAM(oatpp::Object<NumsRow>, row))
 
   QUERY(deleteAllNums,
         "DELETE FROM test_numerics;")

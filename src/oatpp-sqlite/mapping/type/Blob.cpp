@@ -34,7 +34,7 @@ namespace __class {
 
   oatpp::Type* Blob::getType() {
     static Type type(
-      CLASS_ID, nullptr, nullptr, nullptr, nullptr,
+      CLASS_ID, nullptr, nullptr,
       {
         {"sqlite", new Inter()}
       }

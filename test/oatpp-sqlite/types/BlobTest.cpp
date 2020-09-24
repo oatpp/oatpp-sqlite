@@ -69,7 +69,7 @@ public:
         "(f_string, f_blob) "
         "VALUES "
         "(:row.f_string, :row.f_blob);",
-        PARAMS_DTO(oatpp::Object<BlobsRow>, row))
+        PARAM(oatpp::Object<BlobsRow>, row))
 
   QUERY(deleteAllBlobs,
         "DELETE FROM test_blobs;")

@@ -117,8 +117,9 @@ void ResultMapper::setReadRowsMethod(const data::mapping::type::ClassId& classId
 
 oatpp::Void ResultMapper::readRowAsObject(ResultMapper* _this, ResultData* dbData, const Type* type) {
 
-  auto object = type->creator();
-  const auto& fieldsMap = type->propertiesGetter()->getMap();
+  auto dispatcher = static_cast<const data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+  auto object = dispatcher->createObject();
+  const auto& fieldsMap = dispatcher->getProperties()->getMap();
 
   for(auto& f : fieldsMap) {
 
@@ -131,7 +132,7 @@ oatpp::Void ResultMapper::readRowAsObject(ResultMapper* _this, ResultData* dbDat
     if(colIt != dbData->colIndices.end()) {
       auto i = colIt->second;
       mapping::Deserializer::InData inData(dbData->stmt, i);
-      field->set(object.get(), _this->m_deserializer.deserialize(inData, field->type));
+      field->set(static_cast<oatpp::BaseObject*>(object.get()), _this->m_deserializer.deserialize(inData, field->type));
     }
 
   }

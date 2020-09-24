@@ -63,12 +63,12 @@ private:
   template<class Collection>
   static oatpp::Void readRowAsList(ResultMapper* _this, ResultData* dbData, const Type* type) {
 
-    auto listWrapper = type->creator();
+    auto polymorphicDispatcher = static_cast<const typename Collection::Class::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+    auto listWrapper = polymorphicDispatcher->createObject();
 
-    auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
     const auto& list = listWrapper.template staticCast<Collection>();
 
-    Type* itemType = *type->params.begin();
+    const Type* itemType = *type->params.begin();
 
     for(v_int32 i = 0; i < dbData->colCount; i ++) {
       mapping::Deserializer::InData inData(dbData->stmt, i);
@@ -82,17 +82,17 @@ private:
   template<class Collection>
   static oatpp::Void readRowAsKeyValue(ResultMapper* _this, ResultData* dbData, const Type* type) {
 
-    auto mapWrapper = type->creator();
-    auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
+    auto polymorphicDispatcher = static_cast<const typename Collection::Class::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+    auto mapWrapper = polymorphicDispatcher->createObject();
     const auto& map = mapWrapper.template staticCast<Collection>();
 
     auto it = type->params.begin();
-    Type* keyType = *it ++;
+    const Type* keyType = *it ++;
     if(keyType->classId.id != oatpp::data::mapping::type::__class::String::CLASS_ID.id){
       throw std::runtime_error("[oatpp::sqlite::mapping::ResultMapper::readRowAsKeyValue()]: Invalid map key. Key should be String");
     }
-    Type* valueType = *it;
 
+    const Type* valueType = *it;
     for(v_int32 i = 0; i < dbData->colCount; i ++) {
       mapping::Deserializer::InData inData(dbData->stmt, i);
       polymorphicDispatcher->addPolymorphicItem(mapWrapper, dbData->colNames[i], _this->m_deserializer.deserialize(inData, valueType));
@@ -106,14 +106,13 @@ private:
   template<class Collection>
   static oatpp::Void readRowsAsList(ResultMapper* _this, ResultData* dbData, const Type* type, v_int64 count) {
 
-    auto listWrapper = type->creator();
-
-    auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
+    auto polymorphicDispatcher = static_cast<const typename Collection::Class::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+    auto listWrapper = polymorphicDispatcher->createObject();
     const auto& list = listWrapper.template staticCast<Collection>();
 
     if(count != 0) {
 
-      Type *itemType = *type->params.begin();
+      const Type *itemType = *type->params.begin();
 
       v_int64 counter = 0;
       while (dbData->hasMore) {
