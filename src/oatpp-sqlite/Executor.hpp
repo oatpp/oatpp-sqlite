@@ -53,7 +53,8 @@ private:
 
   void bindParams(sqlite3_stmt* stmt,
                   const StringTemplate& queryTemplate,
-                  const std::unordered_map<oatpp::String, oatpp::Void>& params);
+                  const std::unordered_map<oatpp::String, oatpp::Void>& params,
+                  const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver);
 
   std::shared_ptr<orm::QueryResult> exec(const oatpp::String& statement,
                                          const std::shared_ptr<orm::Connection>& connection = nullptr);
@@ -68,20 +69,23 @@ private:
   std::shared_ptr<mapping::ResultMapper> m_resultMapper;
   mapping::TypeMapper m_typeMapper;
   mapping::Serializer m_serializer;
-  data::mapping::type::BaseObject::PropertyTraverser m_objectTraverser;
 public:
 
   Executor(const std::shared_ptr<provider::Provider<Connection>>& connectionProvider);
 
+  std::shared_ptr<data::mapping::TypeResolver> createTypeResolver() override;
+
   StringTemplate parseQueryTemplate(const oatpp::String& name,
                                     const oatpp::String& text,
                                     const ParamsTypeMap& paramsTypeMap,
+                                    const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver,
                                     bool prepare) override;
 
   std::shared_ptr<orm::Connection> getConnection() override;
 
   std::shared_ptr<orm::QueryResult> execute(const StringTemplate& queryTemplate,
                                             const std::unordered_map<oatpp::String, oatpp::Void>& params,
+                                            const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver,
                                             const std::shared_ptr<orm::Connection>& connection) override;
 
   std::shared_ptr<orm::QueryResult> begin(const std::shared_ptr<orm::Connection>& connection = nullptr) override;

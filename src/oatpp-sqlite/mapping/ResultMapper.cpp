@@ -26,8 +26,9 @@
 
 namespace oatpp { namespace sqlite { namespace mapping {
 
-ResultMapper::ResultData::ResultData(sqlite3_stmt* pStmt)
+ResultMapper::ResultData::ResultData(sqlite3_stmt* pStmt, const std::shared_ptr<const data::mapping::TypeResolver>& pTypeResolver)
   : stmt(pStmt)
+  , typeResolver(pTypeResolver)
 {
 
   next();
@@ -148,6 +149,11 @@ oatpp::Void ResultMapper::readOneRow(ResultData* dbData, const Type* type) {
 
   if(method) {
     return (*method)(this, dbData, type);
+  }
+
+  auto* interpretation = type->findInterpretation(dbData->typeResolver->getEnabledInterpretations());
+  if(interpretation) {
+    return interpretation->fromInterpretation(readOneRow(dbData, interpretation->getInterpretationType()));
   }
 
   throw std::runtime_error("[oatpp::sqlite::mapping::ResultMapper::readOneRow()]: "

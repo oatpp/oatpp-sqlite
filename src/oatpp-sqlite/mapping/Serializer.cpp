@@ -100,7 +100,7 @@ void Serializer::serialize(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp:
 void Serializer::serializeString(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   if(polymorph) {
     base::StrBuffer *buff = static_cast<base::StrBuffer *>(polymorph.get());
-    sqlite3_bind_text(stmt, paramIndex, buff->c_str(), buff->getSize(), nullptr);
+    sqlite3_bind_text(stmt, paramIndex, buff->c_str(), buff->getSize(), SQLITE_TRANSIENT);
   } else {
     sqlite3_bind_null(stmt, paramIndex);
   }
@@ -109,7 +109,7 @@ void Serializer::serializeString(sqlite3_stmt* stmt, v_uint32 paramIndex, const 
 void Serializer::serializeBlob(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   if(polymorph) {
     base::StrBuffer *buff = static_cast<base::StrBuffer *>(polymorph.get());
-    sqlite3_bind_blob(stmt, paramIndex, buff->c_str(), buff->getSize(), nullptr);
+    sqlite3_bind_blob(stmt, paramIndex, buff->c_str(), buff->getSize(), SQLITE_TRANSIENT);
   } else {
     sqlite3_bind_null(stmt, paramIndex);
   }
