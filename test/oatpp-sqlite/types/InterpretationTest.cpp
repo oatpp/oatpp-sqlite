@@ -26,6 +26,7 @@
 
 #include "oatpp-sqlite/orm.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <limits>
 #include <cstdio>
@@ -36,39 +37,47 @@ namespace {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class PointDto : public oatpp::DTO {
-
-  DTO_INIT(PointDto, DTO);
-
-  DTO_FIELD(Int64, x, "f_x");
-  DTO_FIELD(Int64, y, "f_y");
-  DTO_FIELD(Int64, z, "f_z");
-
+struct VPoint {
+  v_int32 x;
+  v_int32 y;
+  v_int32 z;
 };
 
-#include OATPP_CODEGEN_END(DTO)
-
-struct VPoint {
-  v_int64 x;
-  v_int64 y;
-  v_int64 z;
+struct VLine {
+  VPoint p1;
+  VPoint p2;
 };
 
 namespace __class {
-  class PointClass;
+ class PointClass;
+ class LineClass;
+ class StringNumberClass;
 }
 
-typedef oatpp::data::mapping::type::ObjectWrapper<VPoint, __class::PointClass> Point;
+typedef oatpp::data::mapping::type::Primitive<VPoint, __class::PointClass> Point;
+typedef oatpp::data::mapping::type::Primitive<VLine, __class::LineClass> Line;
+typedef oatpp::data::mapping::type::ObjectWrapper<base::StrBuffer, __class::StringNumberClass> StringNumber;
 
 namespace __class {
 
   class PointClass {
   private:
 
-    class Inter : public oatpp::Type::Interpretation<Point, oatpp::Object<PointDto>>  {
+    class PointDto : public oatpp::DTO {
+
+      DTO_INIT(PointDto, DTO)
+
+      DTO_FIELD(Int32, x, "f_x");
+      DTO_FIELD(Int32, y, "f_y");
+      DTO_FIELD(Int32, z, "f_z");
+
+    };
+
+    class Inter : public oatpp::Type::Interpretation<Point, oatpp::Object<PointDto>> {
     public:
 
-      oatpp::Object<PointDto> interpret(const Point& value) const override {
+      oatpp::Object<PointDto> interpret(const Point &value) const override {
+        OATPP_LOGD("Point::Interpretation", "interpret");
         auto dto = PointDto::createShared();
         dto->x = value->x;
         dto->y = value->y;
@@ -76,8 +85,9 @@ namespace __class {
         return dto;
       }
 
-      Point reproduce(const oatpp::Object<PointDto>& value) const override {
-        return std::make_shared<VPoint>(VPoint({value->x, value->y, value->z}));
+      Point reproduce(const oatpp::Object<PointDto> &value) const override {
+        OATPP_LOGD("Point::Interpretation", "reproduce");
+        return Point({value->x, value->y, value->z});
       }
 
     };
@@ -86,7 +96,7 @@ namespace __class {
 
     static const oatpp::ClassId CLASS_ID;
 
-    static oatpp::Type* getType(){
+    static oatpp::Type *getType() {
       static Type type(
         CLASS_ID, nullptr, nullptr,
         {
@@ -100,7 +110,109 @@ namespace __class {
 
   const oatpp::ClassId PointClass::CLASS_ID("test::Point");
 
+  class LineClass {
+  private:
+
+    class LineDto : public oatpp::DTO {
+
+      DTO_INIT(LineDto, DTO)
+
+      DTO_FIELD(Point, p1);
+      DTO_FIELD(Point, p2);
+
+    };
+
+    class Inter : public oatpp::Type::Interpretation<Line, oatpp::Object<LineDto>> {
+    public:
+
+      oatpp::Object<LineDto> interpret(const Line &value) const override {
+        OATPP_LOGD("Line::Interpretation", "interpret");
+        auto dto = LineDto::createShared();
+        dto->p1 = {value->p1.x, value->p1.y, value->p1.z};
+        dto->p2 = {value->p2.x, value->p2.y, value->p2.z};
+        return dto;
+      }
+
+      Line reproduce(const oatpp::Object<LineDto> &value) const override {
+        OATPP_LOGD("Line::Interpretation", "reproduce");
+        return Line({{value->p1->x, value->p1->y, value->p1->z},
+                     {value->p2->x, value->p2->y, value->p2->z}});
+      }
+
+    };
+
+  public:
+
+    static const oatpp::ClassId CLASS_ID;
+
+    static oatpp::Type *getType() {
+      static Type type(
+        CLASS_ID, nullptr, nullptr,
+        {
+          {"test", new Inter()}
+        }
+      );
+      return &type;
+    }
+
+  };
+
+  const oatpp::ClassId LineClass::CLASS_ID("test::Line");
+
+  class StringNumberClass {
+  private:
+
+    class Inter : public oatpp::Type::Interpretation<StringNumber, oatpp::Int64> {
+    public:
+
+      oatpp::Int64 interpret(const StringNumber& value) const override {
+        OATPP_LOGD("StringNumber::Interpretation", "interpret");
+        return oatpp::utils::conversion::strToInt64(value->c_str());
+      }
+
+      StringNumber reproduce(const oatpp::Int64& value) const override {
+        OATPP_LOGD("StringNumber::Interpretation", "reproduce");
+        return oatpp::utils::conversion::int64ToStr(value).getPtr();
+      }
+
+    };
+
+  public:
+
+    static const oatpp::ClassId CLASS_ID;
+
+    static oatpp::Type *getType() {
+      static Type type(
+        CLASS_ID, nullptr, nullptr,
+        {
+          {"test", new Inter()}
+        }
+      );
+      return &type;
+    }
+
+  };
+
+  const oatpp::ClassId StringNumberClass::CLASS_ID("test::StringNumber");
+
+
 }
+
+class LineInterRow : public oatpp::DTO {
+
+  DTO_INIT(LineInterRow, DTO);
+
+  DTO_FIELD(Int64, f_x1);
+  DTO_FIELD(Int64, f_y1);
+  DTO_FIELD(Int64, f_z1);
+
+  DTO_FIELD(StringNumber, f_x2);
+  DTO_FIELD(StringNumber, f_y2);
+  DTO_FIELD(StringNumber, f_z2);
+
+};
+
+#include OATPP_CODEGEN_END(DTO)
 
 #include OATPP_CODEGEN_BEGIN(DbClient)
 
@@ -121,14 +233,23 @@ public:
 
   }
 
-  QUERY(insertValues,
+  QUERY(insertPoints,
         "INSERT INTO test_interpretation_points "
         "(f_x, f_y, f_z) "
         "VALUES "
         "(:point.f_x, :point.f_y, :point.f_z);",
         PARAM(Point, point))
 
-  QUERY(selectAll, "SELECT * FROM test_interpretation_points;")
+  QUERY(selectPoints, "SELECT * FROM test_interpretation_points;")
+
+  QUERY(insertLines,
+        "INSERT INTO test_interpretation_lines "
+        "(f_x1, f_y1, f_z1, f_x2, f_y2, f_z2) "
+        "VALUES "
+        "(:line.p1.f_x, :line.p1.f_y, :line.p1.f_z, :line.p2.f_x, :line.p2.f_y, :line.p2.f_z);",
+        PARAM(Line, line))
+
+  QUERY(selectLines, "SELECT * FROM test_interpretation_lines;")
 
 };
 
@@ -155,7 +276,7 @@ void InterpretationTest::onRun() {
       point->x = 1;
       point->y = 2;
       point->z = 3;
-      client.insertValues(point, connection);
+      client.insertPoints(point, connection);
     }
 
     {
@@ -163,7 +284,7 @@ void InterpretationTest::onRun() {
       point->x = 10;
       point->y = 20;
       point->z = 30;
-      client.insertValues(point, connection);
+      client.insertPoints(point, connection);
     }
 
     {
@@ -171,13 +292,13 @@ void InterpretationTest::onRun() {
       point->x = 100;
       point->y = 200;
       point->z = 300;
-      client.insertValues(point, connection);
+      client.insertPoints(point, connection);
     }
 
   }
 
   {
-    auto res = client.selectAll();
+    auto res = client.selectPoints();
     if(res->isSuccess()) {
       OATPP_LOGD(TAG, "OK, knownCount=%d, hasMore=%d", res->getKnownCount(), res->hasMoreToFetch());
     } else {
@@ -219,6 +340,80 @@ void InterpretationTest::onRun() {
     }
 
   }
+
+  {
+
+    auto connection = client.getConnection();
+
+    {
+      Line line = std::make_shared<VLine>();
+      line->p1.x = 11;
+      line->p1.y = 12;
+      line->p1.z = 13;
+      line->p2.x = 21;
+      line->p2.y = 22;
+      line->p2.z = 23;
+      client.insertLines(line, connection);
+    }
+
+    {
+      Line line = std::make_shared<VLine>();
+      line->p1.x = 110;
+      line->p1.y = 120;
+      line->p1.z = 130;
+      line->p2.x = 210;
+      line->p2.y = 220;
+      line->p2.z = 230;
+      client.insertLines(line, connection);
+    }
+
+    {
+      Line line = std::make_shared<VLine>();
+      line->p1.x = 1100;
+      line->p1.y = 1200;
+      line->p1.z = 1300;
+      line->p2.x = 2100;
+      line->p2.y = 2200;
+      line->p2.z = 2300;
+      client.insertLines(line, connection);
+    }
+
+  }
+
+
+  {
+    auto res = client.selectLines();
+    if(res->isSuccess()) {
+      OATPP_LOGD(TAG, "OK, knownCount=%d, hasMore=%d", res->getKnownCount(), res->hasMoreToFetch());
+    } else {
+      auto message = res->getErrorMessage();
+      OATPP_LOGD(TAG, "Error, message=%s", message->c_str());
+    }
+
+    auto dataset = res->fetch<oatpp::Vector<oatpp::Object<LineInterRow>>>();
+
+    oatpp::parser::json::mapping::ObjectMapper om;
+    om.getSerializer()->getConfig()->useBeautifier = true;
+    om.getSerializer()->getConfig()->enabledInterpretations = {"sqlite", "test"};
+
+    auto str = om.writeToString(dataset);
+
+    OATPP_LOGD(TAG, "res=%s", str->c_str());
+
+    OATPP_ASSERT(dataset->size() == 3);
+
+    {
+      auto line = dataset[0];
+      OATPP_ASSERT(line->f_x1 == 11);
+      OATPP_ASSERT(line->f_y1 == 12);
+      OATPP_ASSERT(line->f_z1 == 13);
+      OATPP_ASSERT(line->f_x2->equals("21"));
+      OATPP_ASSERT(line->f_y2->equals("22"));
+      OATPP_ASSERT(line->f_z2->equals("23"));
+    }
+
+  }
+
 
 }
 

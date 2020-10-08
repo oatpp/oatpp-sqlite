@@ -10,9 +10,9 @@ namespace {
 
 void runTests() {
 
-//  OATPP_RUN_TEST(oatpp::test::sqlite::types::IntTest);
-//  OATPP_RUN_TEST(oatpp::test::sqlite::types::NumericTest);
-//  OATPP_RUN_TEST(oatpp::test::sqlite::types::BlobTest);
+  OATPP_RUN_TEST(oatpp::test::sqlite::types::IntTest);
+  OATPP_RUN_TEST(oatpp::test::sqlite::types::NumericTest);
+  OATPP_RUN_TEST(oatpp::test::sqlite::types::BlobTest);
   OATPP_RUN_TEST(oatpp::test::sqlite::types::InterpretationTest);
 
 }

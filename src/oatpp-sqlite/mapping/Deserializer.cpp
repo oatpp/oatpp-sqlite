@@ -82,13 +82,21 @@ void Deserializer::setDeserializerMethod(const data::mapping::type::ClassId& cla
   }
 }
 
-oatpp::Void Deserializer::deserialize(const InData& data, const Type* type) const {
+oatpp::Void Deserializer::deserialize(const InData& data,
+                                      const Type* type,
+                                      const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver) const
+{
 
   auto id = type->classId.id;
   auto& method = m_methods[id];
 
   if(method) {
-    return (*method)(this, data, type);
+    return (*method)(this, data, type, typeResolver);
+  }
+
+  auto* interpretation = type->findInterpretation(typeResolver->getEnabledInterpretations());
+  if(interpretation) {
+    return interpretation->fromInterpretation(deserialize(data, interpretation->getInterpretationType(), typeResolver));
   }
 
   throw std::runtime_error("[oatpp::sqlite::mapping::Deserializer::deserialize()]: "
@@ -103,10 +111,13 @@ v_int64 Deserializer::deInt(const InData& data) {
   throw std::runtime_error("[oatpp::sqlite::mapping::Deserializer::deInt()]: Error. Unknown OID.");
 }
 
-oatpp::Void Deserializer::deserializeString(const Deserializer* _this, const InData& data, const Type* type) {
+oatpp::Void Deserializer::deserializeString(const Deserializer* _this, const InData& data, const Type* type,
+                                            const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver)
+{
 
   (void) _this;
   (void) type;
+  (void) typeResolver;
 
   if(data.isNull) {
     return oatpp::String();
@@ -118,10 +129,13 @@ oatpp::Void Deserializer::deserializeString(const Deserializer* _this, const InD
 
 }
 
-oatpp::Void Deserializer::deserializeBlob(const Deserializer* _this, const InData& data, const Type* type) {
+oatpp::Void Deserializer::deserializeBlob(const Deserializer* _this, const InData& data, const Type* type,
+                                          const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver)
+{
 
   (void) _this;
   (void) type;
+  (void) typeResolver;
 
   if(data.isNull) {
     return oatpp::String();
@@ -133,10 +147,13 @@ oatpp::Void Deserializer::deserializeBlob(const Deserializer* _this, const InDat
 
 }
 
-oatpp::Void Deserializer::deserializeFloat32(const Deserializer* _this, const InData& data, const Type* type) {
+oatpp::Void Deserializer::deserializeFloat32(const Deserializer* _this, const InData& data, const Type* type,
+                                             const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver)
+{
 
   (void) _this;
   (void) type;
+  (void) typeResolver;
 
   if(data.isNull) {
     return oatpp::Float32();
@@ -151,10 +168,13 @@ oatpp::Void Deserializer::deserializeFloat32(const Deserializer* _this, const In
 
 }
 
-oatpp::Void Deserializer::deserializeFloat64(const Deserializer* _this, const InData& data, const Type* type) {
+oatpp::Void Deserializer::deserializeFloat64(const Deserializer* _this, const InData& data, const Type* type,
+                                             const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver)
+{
 
   (void) _this;
   (void) type;
+  (void) typeResolver;
 
   if(data.isNull) {
     return oatpp::Float64();
@@ -169,7 +189,9 @@ oatpp::Void Deserializer::deserializeFloat64(const Deserializer* _this, const In
 
 }
 
-oatpp::Void Deserializer::deserializeAny(const Deserializer* _this, const InData& data, const Type* type) {
+oatpp::Void Deserializer::deserializeAny(const Deserializer* _this, const InData& data, const Type* type,
+                                         const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver)
+{
   (void) type;
 
   if(data.isNull) {
@@ -182,7 +204,7 @@ oatpp::Void Deserializer::deserializeAny(const Deserializer* _this, const InData
     throw std::runtime_error("[oatpp::sqlite::mapping::Deserializer::deserializeAny()]: Error. Unknown OID.");
   }
 
-  auto value = _this->deserialize(data, valueType);
+  auto value = _this->deserialize(data, valueType, typeResolver);
   auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(value.getPtr(), value.valueType);
   return oatpp::Void(anyHandle, Any::Class::getType());
 

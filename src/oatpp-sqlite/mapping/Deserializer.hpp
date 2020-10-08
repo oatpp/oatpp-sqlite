@@ -26,6 +26,7 @@
 #define oatpp_sqlite_mapping_Deserializer_hpp
 
 #include "TypeMapper.hpp"
+#include "oatpp/core/data/mapping/TypeResolver.hpp"
 #include "oatpp/core/Types.hpp"
 
 #include "sqlite/sqlite3.h"
@@ -49,7 +50,10 @@ public:
   };
 
 public:
-  typedef oatpp::Void (*DeserializerMethod)(const Deserializer*, const InData&, const Type*);
+  typedef oatpp::Void (*DeserializerMethod)(const Deserializer*,
+                                            const InData&,
+                                            const Type*,
+                                            const std::shared_ptr<const data::mapping::TypeResolver>&);
 private:
   static v_int64 deInt(const InData& data);
 private:
@@ -61,17 +65,26 @@ public:
 
   void setDeserializerMethod(const data::mapping::type::ClassId& classId, DeserializerMethod method);
 
-  oatpp::Void deserialize(const InData& data, const Type* type) const;
+  oatpp::Void deserialize(const InData& data,
+                          const Type* type,
+                          const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver) const;
 
 public:
 
-  static oatpp::Void deserializeString(const Deserializer* _this, const InData& data, const Type* type);
-  static oatpp::Void deserializeBlob(const Deserializer* _this, const InData& data, const Type* type);
+  static oatpp::Void deserializeString(const Deserializer* _this, const InData& data, const Type* type,
+                                       const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver);
+
+  static oatpp::Void deserializeBlob(const Deserializer* _this, const InData& data, const Type* type,
+                                     const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver);
 
   template<class IntWrapper>
-  static oatpp::Void deserializeInt(const Deserializer* _this, const InData& data, const Type* type) {
+  static oatpp::Void deserializeInt(const Deserializer* _this,
+                                    const InData& data, const Type* type,
+                                    const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver) {
     (void) _this;
     (void) type;
+    (void) typeResolver;
+
     if(data.isNull) {
       return IntWrapper();
     }
@@ -79,10 +92,20 @@ public:
     return IntWrapper((typename IntWrapper::UnderlyingType) value);
   }
 
-  static oatpp::Void deserializeFloat32(const Deserializer* _this, const InData& data, const Type* type);
-  static oatpp::Void deserializeFloat64(const Deserializer* _this, const InData& data, const Type* type);
+  static oatpp::Void deserializeFloat32(const Deserializer* _this,
+                                        const InData& data,
+                                        const Type* type,
+                                        const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver);
 
-  static oatpp::Void deserializeAny(const Deserializer* _this, const InData& data, const Type* type);
+  static oatpp::Void deserializeFloat64(const Deserializer* _this,
+                                        const InData& data,
+                                        const Type* type,
+                                        const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver);
+
+  static oatpp::Void deserializeAny(const Deserializer* _this,
+                                    const InData& data,
+                                    const Type* type,
+                                    const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver);
 
 };
 

@@ -130,6 +130,8 @@ void Executor::bindParams(sqlite3_stmt* stmt,
                           const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver)
 {
 
+  data::mapping::TypeResolver::Cache cache;
+
   auto count = queryTemplate.getTemplateVariables().size();
 
   for(v_uint32 i = 0; i < count; i ++) {
@@ -137,7 +139,7 @@ void Executor::bindParams(sqlite3_stmt* stmt,
     auto it = params.find(var.name);
 
     if(it != params.end()) {
-      const auto& value = typeResolver->resolveValue(it->second);
+      const auto& value = typeResolver->resolveValue(it->second, cache);
       if(value.valueType->classId.id == oatpp::Void::Class::CLASS_ID.id) {
         throw std::runtime_error("[oatpp::sqlite::Executor::bindParams()]: "
                                  "Error. Can't bind parameter of an unknown type " + std::string(it->second.valueType->classId.name));
@@ -150,12 +152,12 @@ void Executor::bindParams(sqlite3_stmt* stmt,
     if(dtoParam.name) {
       it = params.find(dtoParam.name);
       if(it != params.end()) {
-        auto resovedType = typeResolver->resolveType(it->second.valueType);
+        auto resovedType = typeResolver->resolveType(it->second.valueType, cache);
         if(resovedType && resovedType->classId.id == data::mapping::type::__class::AbstractObject::CLASS_ID.id) {
-          auto value = typeResolver->resolveObjectPropertyValue(it->second, dtoParam.propertyPath);
+          auto value = typeResolver->resolveObjectPropertyValue(it->second, dtoParam.propertyPath, cache);
           if(value.valueType->classId.id == oatpp::Void::Class::CLASS_ID.id) {
             throw std::runtime_error("[oatpp::sqlite::Executor::bindParams()]: "
-                                     "Error. Can't bind object property. Property not found or it's type is unknown.");
+                                     "Error. Can't bind object property. Property not found or its type is unknown.");
           }
           m_serializer.serialize(stmt, i + 1, value);
           continue;
