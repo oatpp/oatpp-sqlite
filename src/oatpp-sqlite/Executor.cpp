@@ -58,9 +58,17 @@ Executor::Executor(const std::shared_ptr<provider::Provider<Connection>>& connec
   : m_connectionProvider(connectionProvider)
   , m_resultMapper(std::make_shared<mapping::ResultMapper>())
 {
-  m_objectTraverser.addKnownTypes({
+  m_defaultTypeResolver->addKnownClasses({
     Blob::Class::CLASS_ID
   });
+}
+
+std::shared_ptr<data::mapping::TypeResolver> Executor::createTypeResolver() {
+  auto typeResolver = std::make_shared<data::mapping::TypeResolver>();
+  typeResolver->addKnownClasses({
+    Blob::Class::CLASS_ID
+  });
+  return typeResolver;
 }
 
 data::share::StringTemplate Executor::parseQueryTemplate(const oatpp::String& name,
@@ -89,13 +97,13 @@ std::shared_ptr<orm::Connection> Executor::getConnection() {
   return m_connectionProvider->get();
 }
 
-Executor::DtoParam Executor::paramNameAsDtoParam(const oatpp::String& paramName) {
+Executor::QueryParameter Executor::parseQueryParameter(const oatpp::String& paramName) {
 
   parser::Caret caret(paramName);
   auto nameLabel = caret.putLabel();
   if(caret.findChar('.') && caret.getPosition() < caret.getDataSize() - 1) {
 
-    DtoParam result;
+    QueryParameter result;
     result.name = nameLabel.toString();
 
     do {
@@ -111,14 +119,17 @@ Executor::DtoParam Executor::paramNameAsDtoParam(const oatpp::String& paramName)
 
   }
 
-  return {};
+  return {nameLabel.toString(), {}};
 
 }
 
 void Executor::bindParams(sqlite3_stmt* stmt,
                           const StringTemplate& queryTemplate,
-                          const std::unordered_map<oatpp::String, oatpp::Void>& params)
+                          const std::unordered_map<oatpp::String, oatpp::Void>& params,
+                          const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver)
 {
+
+  data::mapping::TypeResolver::Cache cache;
 
   auto count = queryTemplate.getTemplateVariables().size();
 
@@ -126,21 +137,20 @@ void Executor::bindParams(sqlite3_stmt* stmt,
     const auto& var = queryTemplate.getTemplateVariables()[i];
     auto it = params.find(var.name);
 
-    if(it != params.end()) {
-      m_serializer.serialize(stmt, i + 1, it->second);
-      continue;
-    }
+    auto queryParameter = parseQueryParameter(var.name);
+    if(queryParameter.name) {
 
-    auto dtoParam = paramNameAsDtoParam(var.name);
-    if(dtoParam.name) {
-      it = params.find(dtoParam.name);
-      if(it != params.end() && it->second.valueType->classId.id == data::mapping::type::__class::AbstractObject::CLASS_ID.id) {
-        auto value = m_objectTraverser.findPropertyValue(it->second, dtoParam.propertyPath, {});
-        if(value.valueType->classId.id != oatpp::Void::Class::CLASS_ID.id) {
-          m_serializer.serialize(stmt, i + 1, value);
-          continue;
+      it = params.find(queryParameter.name);
+      if(it != params.end()) {
+        auto value = typeResolver->resolveObjectPropertyValue(it->second, queryParameter.propertyPath, cache);
+        if(value.valueType->classId.id == oatpp::Void::Class::CLASS_ID.id) {
+          throw std::runtime_error("[oatpp::sqlite::Executor::bindParams()]: "
+                                   "Error. Can't bind object property. Property not found or its type is unknown.");
         }
+        m_serializer.serialize(stmt, i + 1, value);
+        continue;
       }
+
     }
 
     throw std::runtime_error("[oatpp::sqlite::Executor::bindParams()]: "
@@ -152,12 +162,18 @@ void Executor::bindParams(sqlite3_stmt* stmt,
 
 std::shared_ptr<orm::QueryResult> Executor::execute(const StringTemplate& queryTemplate,
                                                     const std::unordered_map<oatpp::String, oatpp::Void>& params,
+                                                    const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver,
                                                     const std::shared_ptr<orm::Connection>& connection)
 {
 
   std::shared_ptr<orm::Connection> conn = connection;
   if(!conn) {
     conn = getConnection();
+  }
+
+  std::shared_ptr<const data::mapping::TypeResolver> tr = typeResolver;
+  if(!tr) {
+    tr = m_defaultTypeResolver;
   }
 
   auto pgConnection = std::static_pointer_cast<sqlite::Connection>(conn);
@@ -173,9 +189,9 @@ std::shared_ptr<orm::QueryResult> Executor::execute(const StringTemplate& queryT
 
   // TODO check for res
 
-  bindParams(stmt, queryTemplate, params);
+  bindParams(stmt, queryTemplate, params, tr);
 
-  return std::make_shared<QueryResult>(stmt, pgConnection, m_connectionProvider, m_resultMapper);
+  return std::make_shared<QueryResult>(stmt, pgConnection, m_connectionProvider, m_resultMapper, tr);
 
 }
 
@@ -191,7 +207,7 @@ std::shared_ptr<orm::QueryResult> Executor::exec(const oatpp::String& statement,
   auto pgConnection = std::static_pointer_cast<sqlite::Connection>(conn);
   sqlite3_stmt* stmt;
   auto res = sqlite3_prepare_v2(pgConnection->getHandle(), statement->c_str(), -1, &stmt, nullptr);
-  return std::make_shared<QueryResult>(stmt, pgConnection, m_connectionProvider, m_resultMapper);
+  return std::make_shared<QueryResult>(stmt, pgConnection, m_connectionProvider, m_resultMapper, m_defaultTypeResolver);
 
 }
 

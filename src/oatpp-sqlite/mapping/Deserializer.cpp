@@ -27,9 +27,13 @@
 
 namespace oatpp { namespace sqlite { namespace mapping {
 
-Deserializer::InData::InData(sqlite3_stmt* pStmt, int pCol) {
+Deserializer::InData::InData(sqlite3_stmt* pStmt,
+                             int pCol,
+                             const std::shared_ptr<const data::mapping::TypeResolver>& pTypeResolver)
+{
   stmt = pStmt;
   col = pCol;
+  typeResolver = pTypeResolver;
   oid = sqlite3_column_type(stmt, col);
   isNull = (oid == SQLITE_NULL);
 }
@@ -91,6 +95,11 @@ oatpp::Void Deserializer::deserialize(const InData& data, const Type* type) cons
     return (*method)(this, data, type);
   }
 
+  auto* interpretation = type->findInterpretation(data.typeResolver->getEnabledInterpretations());
+  if(interpretation) {
+    return interpretation->fromInterpretation(deserialize(data, interpretation->getInterpretationType()));
+  }
+
   throw std::runtime_error("[oatpp::sqlite::mapping::Deserializer::deserialize()]: "
                            "Error. No deserialize method for type '" + std::string(type->classId.name) + "'");
 
@@ -103,7 +112,8 @@ v_int64 Deserializer::deInt(const InData& data) {
   throw std::runtime_error("[oatpp::sqlite::mapping::Deserializer::deInt()]: Error. Unknown OID.");
 }
 
-oatpp::Void Deserializer::deserializeString(const Deserializer* _this, const InData& data, const Type* type) {
+oatpp::Void Deserializer::deserializeString(const Deserializer* _this, const InData& data, const Type* type)
+{
 
   (void) _this;
   (void) type;
@@ -170,6 +180,7 @@ oatpp::Void Deserializer::deserializeFloat64(const Deserializer* _this, const In
 }
 
 oatpp::Void Deserializer::deserializeAny(const Deserializer* _this, const InData& data, const Type* type) {
+
   (void) type;
 
   if(data.isNull) {

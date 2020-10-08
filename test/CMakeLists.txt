@@ -6,12 +6,13 @@ add_definitions (
 add_executable(module-tests
         oatpp-sqlite/types/BlobTest.cpp
         oatpp-sqlite/types/BlobTest.hpp
+        oatpp-sqlite/types/InterpretationTest.cpp
+        oatpp-sqlite/types/InterpretationTest.hpp
         oatpp-sqlite/types/IntTest.cpp
         oatpp-sqlite/types/IntTest.hpp
         oatpp-sqlite/types/NumericTest.cpp
         oatpp-sqlite/types/NumericTest.hpp
-        oatpp-sqlite/tests.cpp
-        )
+        oatpp-sqlite/tests.cpp)
 
 set_target_properties(module-tests PROPERTIES
         CXX_STANDARD 11

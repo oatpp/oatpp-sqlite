@@ -34,10 +34,6 @@ namespace oatpp { namespace sqlite {
 
 class QueryResult : public orm::QueryResult {
 private:
-  static constexpr v_int32 TYPE_ERROR = 0;
-  static constexpr v_int32 TYPE_COMMAND = 1;
-  static constexpr v_int32 TYPE_TUPLES = 2;
-private:
   sqlite3_stmt* m_stmt;
   std::shared_ptr<Connection> m_connection;
   std::shared_ptr<provider::Provider<Connection>> m_connectionProvider;
@@ -50,7 +46,8 @@ public:
   QueryResult(sqlite3_stmt* stmt,
               const std::shared_ptr<Connection>& connection,
               const std::shared_ptr<provider::Provider<Connection>>& connectionProvider,
-              const std::shared_ptr<mapping::ResultMapper>& resultMapper);
+              const std::shared_ptr<mapping::ResultMapper>& resultMapper,
+              const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver);
 
   ~QueryResult();
 

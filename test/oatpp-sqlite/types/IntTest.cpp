@@ -132,7 +132,7 @@ void IntTest::onRun() {
 
     oatpp::parser::json::mapping::ObjectMapper om;
     om.getSerializer()->getConfig()->useBeautifier = true;
-    om.getSerializer()->getConfig()->enableInterpretations = {"sqlite"};
+    om.getSerializer()->getConfig()->enabledInterpretations = {"sqlite"};
 
     auto str = om.writeToString(dataset);
 

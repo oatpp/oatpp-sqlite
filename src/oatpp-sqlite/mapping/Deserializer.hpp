@@ -26,6 +26,7 @@
 #define oatpp_sqlite_mapping_Deserializer_hpp
 
 #include "TypeMapper.hpp"
+#include "oatpp/core/data/mapping/TypeResolver.hpp"
 #include "oatpp/core/Types.hpp"
 
 #include "sqlite/sqlite3.h"
@@ -39,10 +40,13 @@ public:
 
   struct InData {
 
-    InData(sqlite3_stmt* pStmt, int pCol);
+    InData(sqlite3_stmt* pStmt, int pCol, const std::shared_ptr<const data::mapping::TypeResolver>& pTypeResolver);
 
     sqlite3_stmt* stmt;
     int col;
+
+    std::shared_ptr<const data::mapping::TypeResolver> typeResolver;
+
     int oid;
     bool isNull;
 
@@ -66,12 +70,14 @@ public:
 public:
 
   static oatpp::Void deserializeString(const Deserializer* _this, const InData& data, const Type* type);
+
   static oatpp::Void deserializeBlob(const Deserializer* _this, const InData& data, const Type* type);
 
   template<class IntWrapper>
   static oatpp::Void deserializeInt(const Deserializer* _this, const InData& data, const Type* type) {
     (void) _this;
     (void) type;
+
     if(data.isNull) {
       return IntWrapper();
     }
@@ -80,6 +86,7 @@ public:
   }
 
   static oatpp::Void deserializeFloat32(const Deserializer* _this, const InData& data, const Type* type);
+
   static oatpp::Void deserializeFloat64(const Deserializer* _this, const InData& data, const Type* type);
 
   static oatpp::Void deserializeAny(const Deserializer* _this, const InData& data, const Type* type);

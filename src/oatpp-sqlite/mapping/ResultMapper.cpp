@@ -26,8 +26,9 @@
 
 namespace oatpp { namespace sqlite { namespace mapping {
 
-ResultMapper::ResultData::ResultData(sqlite3_stmt* pStmt)
+ResultMapper::ResultData::ResultData(sqlite3_stmt* pStmt, const std::shared_ptr<const data::mapping::TypeResolver>& pTypeResolver)
   : stmt(pStmt)
+  , typeResolver(pTypeResolver)
 {
 
   next();
@@ -121,18 +122,22 @@ oatpp::Void ResultMapper::readRowAsObject(ResultMapper* _this, ResultData* dbDat
   auto object = dispatcher->createObject();
   const auto& fieldsMap = dispatcher->getProperties()->getMap();
 
-  for(auto& f : fieldsMap) {
+  for(v_int32 i = 0; i < dbData->colCount; i ++) {
 
-    const std::string& fname = f.first;
-    auto field = f.second;
+    auto it = fieldsMap.find(dbData->colNames[i]->std_str());
 
-    oatpp::String key((const char*) fname.data(), fname.size(), false);
-    auto colIt = dbData->colIndices.find(key);
-
-    if(colIt != dbData->colIndices.end()) {
-      auto i = colIt->second;
-      mapping::Deserializer::InData inData(dbData->stmt, i);
-      field->set(static_cast<oatpp::BaseObject*>(object.get()), _this->m_deserializer.deserialize(inData, field->type));
+    if(it != fieldsMap.end()) {
+      auto field = it->second;
+      mapping::Deserializer::InData inData(dbData->stmt, i, dbData->typeResolver);
+      field->set(static_cast<oatpp::BaseObject*>(object.get()),
+                 _this->m_deserializer.deserialize(inData, field->type));
+    } else {
+      OATPP_LOGE("[oatpp::sqlite::mapping::ResultMapper::readRowAsObject]",
+                 "Error. The object of type '%s' has no field to map column '%s'.",
+                 type->nameQualifier, dbData->colNames[i]->c_str());
+      throw std::runtime_error("[oatpp::sqlite::mapping::ResultMapper::readRowAsObject]: Error. "
+                               "The object of type " + std::string(type->nameQualifier) +
+                               " has no field to map column " + dbData->colNames[i]->std_str()  + ".");
     }
 
   }
@@ -148,6 +153,11 @@ oatpp::Void ResultMapper::readOneRow(ResultData* dbData, const Type* type) {
 
   if(method) {
     return (*method)(this, dbData, type);
+  }
+
+  auto* interpretation = type->findInterpretation(dbData->typeResolver->getEnabledInterpretations());
+  if(interpretation) {
+    return interpretation->fromInterpretation(readOneRow(dbData, interpretation->getInterpretationType()));
   }
 
   throw std::runtime_error("[oatpp::sqlite::mapping::ResultMapper::readOneRow()]: "

@@ -2,6 +2,7 @@
 #include "types/BlobTest.hpp"
 #include "types/IntTest.hpp"
 #include "types/NumericTest.hpp"
+#include "types/InterpretationTest.hpp"
 
 #include "oatpp/core/base/Environment.hpp"
 
@@ -12,6 +13,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::sqlite::types::IntTest);
   OATPP_RUN_TEST(oatpp::test::sqlite::types::NumericTest);
   OATPP_RUN_TEST(oatpp::test::sqlite::types::BlobTest);
+  OATPP_RUN_TEST(oatpp::test::sqlite::types::InterpretationTest);
 
 }
 
