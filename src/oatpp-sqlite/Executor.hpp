@@ -42,12 +42,12 @@ namespace oatpp { namespace sqlite {
 class Executor : public orm::Executor {
 private:
 
-  struct DtoParam {
+  struct QueryParameter {
     oatpp::String name;
     std::vector<std::string> propertyPath;
   };
 
-  DtoParam paramNameAsDtoParam(const oatpp::String& paramName);
+  QueryParameter parseQueryParameter(const oatpp::String& paramName);
 
 private:
 
@@ -78,7 +78,6 @@ public:
   StringTemplate parseQueryTemplate(const oatpp::String& name,
                                     const oatpp::String& text,
                                     const ParamsTypeMap& paramsTypeMap,
-                                    const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver,
                                     bool prepare) override;
 
   std::shared_ptr<orm::Connection> getConnection() override;

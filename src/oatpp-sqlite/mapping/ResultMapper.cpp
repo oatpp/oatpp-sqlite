@@ -124,13 +124,13 @@ oatpp::Void ResultMapper::readRowAsObject(ResultMapper* _this, ResultData* dbDat
 
   for(v_int32 i = 0; i < dbData->colCount; i ++) {
 
-    mapping::Deserializer::InData inData(dbData->stmt, i);
     auto it = fieldsMap.find(dbData->colNames[i]->std_str());
 
     if(it != fieldsMap.end()) {
       auto field = it->second;
+      mapping::Deserializer::InData inData(dbData->stmt, i, dbData->typeResolver);
       field->set(static_cast<oatpp::BaseObject*>(object.get()),
-                 _this->m_deserializer.deserialize(inData, field->type, dbData->typeResolver));
+                 _this->m_deserializer.deserialize(inData, field->type));
     } else {
       OATPP_LOGE("[oatpp::sqlite::mapping::ResultMapper::readRowAsObject]",
                  "Error. The object of type '%s' has no field to map column '%s'.",

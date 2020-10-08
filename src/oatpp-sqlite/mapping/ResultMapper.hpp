@@ -75,8 +75,8 @@ private:
     const Type* itemType = *type->params.begin();
 
     for(v_int32 i = 0; i < dbData->colCount; i ++) {
-      mapping::Deserializer::InData inData(dbData->stmt, i);
-      polymorphicDispatcher->addPolymorphicItem(listWrapper, _this->m_deserializer.deserialize(inData, itemType, dbData->typeResolver));
+      mapping::Deserializer::InData inData(dbData->stmt, i, dbData->typeResolver);
+      polymorphicDispatcher->addPolymorphicItem(listWrapper, _this->m_deserializer.deserialize(inData, itemType));
     }
 
     return listWrapper;
@@ -98,8 +98,8 @@ private:
 
     const Type* valueType = *it;
     for(v_int32 i = 0; i < dbData->colCount; i ++) {
-      mapping::Deserializer::InData inData(dbData->stmt, i);
-      polymorphicDispatcher->addPolymorphicItem(mapWrapper, dbData->colNames[i], _this->m_deserializer.deserialize(inData, valueType, dbData->typeResolver));
+      mapping::Deserializer::InData inData(dbData->stmt, i, dbData->typeResolver);
+      polymorphicDispatcher->addPolymorphicItem(mapWrapper, dbData->colNames[i], _this->m_deserializer.deserialize(inData, valueType));
     }
 
     return mapWrapper;
