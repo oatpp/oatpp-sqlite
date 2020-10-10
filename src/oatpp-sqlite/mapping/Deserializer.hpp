@@ -25,7 +25,6 @@
 #ifndef oatpp_sqlite_mapping_Deserializer_hpp
 #define oatpp_sqlite_mapping_Deserializer_hpp
 
-#include "TypeMapper.hpp"
 #include "oatpp/core/data/mapping/TypeResolver.hpp"
 #include "oatpp/core/Types.hpp"
 
@@ -58,7 +57,6 @@ private:
   static v_int64 deInt(const InData& data);
 private:
   std::vector<DeserializerMethod> m_methods;
-  TypeMapper m_typeMapper;
 public:
 
   Deserializer();

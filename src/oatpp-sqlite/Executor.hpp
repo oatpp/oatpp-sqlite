@@ -29,7 +29,6 @@
 #include "QueryResult.hpp"
 
 #include "mapping/Serializer.hpp"
-#include "mapping/TypeMapper.hpp"
 #include "mapping/ResultMapper.hpp"
 
 #include "oatpp/orm/Executor.hpp"
@@ -67,7 +66,6 @@ private:
 private:
   std::shared_ptr<provider::Provider<Connection>> m_connectionProvider;
   std::shared_ptr<mapping::ResultMapper> m_resultMapper;
-  mapping::TypeMapper m_typeMapper;
   mapping::Serializer m_serializer;
 public:
 

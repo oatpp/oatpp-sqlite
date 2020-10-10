@@ -187,10 +187,23 @@ oatpp::Void Deserializer::deserializeAny(const Deserializer* _this, const InData
     return oatpp::Void(Any::Class::getType());
   }
 
-  const Type* valueType = _this->m_typeMapper.getOidType(data.oid);
+  const Type* valueType;
 
-  if(valueType == nullptr) {
-    throw std::runtime_error("[oatpp::sqlite::mapping::Deserializer::deserializeAny()]: Error. Unknown OID.");
+  switch(data.oid) {
+    case SQLITE3_TEXT:
+      valueType = oatpp::String::Class::getType();
+      break;
+    case SQLITE_BLOB:
+      valueType = oatpp::sqlite::Blob::Class::getType();
+      break;
+    case SQLITE_INTEGER:
+      valueType = oatpp::Int64::Class::getType();
+      break;
+    case SQLITE_FLOAT:
+      valueType = oatpp::Float64::Class::getType();
+      break;
+    default:
+      throw std::runtime_error("[oatpp::sqlite::mapping::Deserializer::deserializeAny()]: Error. Unknown OID.");
   }
 
   auto value = _this->deserialize(data, valueType);

@@ -21,8 +21,6 @@ add_library(${OATPP_THIS_MODULE_NAME}
         oatpp-sqlite/mapping/ResultMapper.hpp
         oatpp-sqlite/mapping/Serializer.cpp
         oatpp-sqlite/mapping/Serializer.hpp
-        oatpp-sqlite/mapping/TypeMapper.cpp
-        oatpp-sqlite/mapping/TypeMapper.hpp
         oatpp-sqlite/ql_template/Parser.cpp
         oatpp-sqlite/ql_template/Parser.hpp
         oatpp-sqlite/ql_template/TemplateValueProvider.cpp
