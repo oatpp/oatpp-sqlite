@@ -32,7 +32,7 @@ namespace oatpp { namespace sqlite { namespace mapping {
 
 class Serializer {
 public:
-  typedef void (*SerializerMethod)(sqlite3_stmt*, v_uint32, const oatpp::Void&);
+  typedef void (*SerializerMethod)(const Serializer*, sqlite3_stmt*, v_uint32, const oatpp::Void&);
 private:
   std::vector<SerializerMethod> m_methods;
 public:
@@ -43,33 +43,35 @@ public:
 
   void serialize(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) const;
 
-public:
+private:
 
-  static void serializeString(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+  static void serializeString(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  static void serializeBlob(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+  static void serializeBlob(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  static void serializeInt8(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+  static void serializeInt8(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  static void serializeUInt8(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+  static void serializeUInt8(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  static void serializeInt16(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+  static void serializeInt16(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  static void serializeUInt16(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+  static void serializeUInt16(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  static void serializeInt32(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+  static void serializeInt32(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  static void serializeUInt32(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+  static void serializeUInt32(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  static void serializeInt64(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+  static void serializeInt64(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  static void serializeUInt64(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+  static void serializeUInt64(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  static void serializeFloat32(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+  static void serializeFloat32(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  static void serializeFloat64(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+  static void serializeFloat64(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
-  static void serializeBoolean(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+  static void serializeBoolean(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
+
+  static void serializeEnum(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph);
 
 };
 

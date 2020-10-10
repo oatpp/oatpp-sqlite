@@ -62,7 +62,7 @@ Deserializer::Deserializer() {
   setDeserializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, &Deserializer::deserializeInt<oatpp::Boolean>);
 
   setDeserializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, nullptr);
-  setDeserializerMethod(data::mapping::type::__class::AbstractEnum::CLASS_ID, nullptr);
+  setDeserializerMethod(data::mapping::type::__class::AbstractEnum::CLASS_ID, &Deserializer::deserializeEnum);
 
   setDeserializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, nullptr);
   setDeserializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, nullptr);
@@ -209,6 +209,31 @@ oatpp::Void Deserializer::deserializeAny(const Deserializer* _this, const InData
   auto value = _this->deserialize(data, valueType);
   auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(value.getPtr(), value.valueType);
   return oatpp::Void(anyHandle, Any::Class::getType());
+
+}
+
+oatpp::Void Deserializer::deserializeEnum(const Deserializer* _this, const InData& data, const Type* type) {
+
+  auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
+    type->polymorphicDispatcher
+  );
+
+  data::mapping::type::EnumInterpreterError e = data::mapping::type::EnumInterpreterError::OK;
+  const auto& value = _this->deserialize(data, polymorphicDispatcher->getInterpretationType());
+
+  const auto& result = polymorphicDispatcher->fromInterpretation(value, e);
+
+  if(e == data::mapping::type::EnumInterpreterError::OK) {
+    return result;
+  }
+
+  switch(e) {
+    case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
+      throw std::runtime_error("[oatpp::sqlite::mapping::Deserializer::deserializeEnum()]: Error. Enum constraint violated - 'NotNull'.");
+
+    default:
+      throw std::runtime_error("[oatpp::sqlite::mapping::Deserializer::deserializeEnum()]: Error. Can't deserialize Enum.");
+  }
 
 }
 

@@ -65,7 +65,7 @@ public:
 
   oatpp::Void deserialize(const InData& data, const Type* type) const;
 
-public:
+private:
 
   static oatpp::Void deserializeString(const Deserializer* _this, const InData& data, const Type* type);
 
@@ -88,6 +88,8 @@ public:
   static oatpp::Void deserializeFloat64(const Deserializer* _this, const InData& data, const Type* type);
 
   static oatpp::Void deserializeAny(const Deserializer* _this, const InData& data, const Type* type);
+
+  static oatpp::Void deserializeEnum(const Deserializer* _this, const InData& data, const Type* type);
 
 };
 

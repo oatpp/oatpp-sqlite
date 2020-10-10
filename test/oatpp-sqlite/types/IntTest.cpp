@@ -36,6 +36,12 @@ namespace {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+ENUM(TestEnum, v_int32,
+  VALUE(VAL_1, 1024),
+  VALUE(VAL_2, 2048),
+  VALUE(VAL_3, 4096)
+)
+
 class IntsRow : public oatpp::DTO {
 
   DTO_INIT(IntsRow, DTO);
@@ -45,6 +51,7 @@ class IntsRow : public oatpp::DTO {
   DTO_FIELD(Int32, f_int32);
   DTO_FIELD(Int64, f_int64);
   DTO_FIELD(Boolean, f_bool);
+  DTO_FIELD(Enum<TestEnum>::AsNumber, f_enum);
 
 };
 
@@ -69,14 +76,15 @@ public:
 
   QUERY(insertIntValues,
         "INSERT INTO test_ints "
-        "(f_int8, f_int16, f_int32, f_int64, f_bool) "
+        "(f_int8, f_int16, f_int32, f_int64, f_bool, f_enum) "
         "VALUES "
-        "(:f_int8, :f_int16, :f_int32, :f_int64, :f_bool)",
+        "(:f_int8, :f_int16, :f_int32, :f_int64, :f_bool, :f_enum)",
         PARAM(Int8, f_int8),
         PARAM(Int16, f_int16),
         PARAM(Int32, f_int32),
         PARAM(Int64, f_int64),
-        PARAM(Boolean, f_bool))
+        PARAM(Boolean, f_bool),
+        PARAM(Enum<TestEnum>::AsNumber, f_enum))
 
   QUERY(selectAllInts, "SELECT * FROM test_ints")
 
@@ -103,25 +111,29 @@ void IntTest::onRun() {
                            nullptr,
                            nullptr,
                            nullptr,
+                           nullptr,
                            nullptr, connection);
 
     client.insertIntValues(-1,
                            -1,
                            -1,
                            -1,
-                           false, connection);
+                           false,
+                           TestEnum::VAL_1, connection);
 
     client.insertIntValues(std::numeric_limits<v_int8>::min(),
                            std::numeric_limits<v_int16>::min(),
                            std::numeric_limits<v_int32>::min(),
                            std::numeric_limits<v_int64>::min(),
-                           true, connection);
+                           true,
+                           TestEnum::VAL_2, connection);
 
     client.insertIntValues(std::numeric_limits<v_int8>::max(),
                            std::numeric_limits<v_int16>::max(),
                            std::numeric_limits<v_int32>::max(),
                            std::numeric_limits<v_int64>::max(),
-                           true, connection);
+                           true,
+                           TestEnum::VAL_3, connection);
 
   }
 
@@ -153,6 +165,7 @@ void IntTest::onRun() {
       OATPP_ASSERT(row->f_int32 == nullptr);
       OATPP_ASSERT(row->f_int64 == nullptr);
       OATPP_ASSERT(row->f_bool == nullptr);
+      OATPP_ASSERT(row->f_enum == nullptr);
     }
 
     {
@@ -162,6 +175,7 @@ void IntTest::onRun() {
       OATPP_ASSERT(row->f_int32 == -1);
       OATPP_ASSERT(row->f_int64 == -1);
       OATPP_ASSERT(row->f_bool == false);
+      OATPP_ASSERT(row->f_enum == TestEnum::VAL_1);
     }
 
     {
@@ -171,6 +185,7 @@ void IntTest::onRun() {
       OATPP_ASSERT(row->f_int32 == std::numeric_limits<v_int32>::min());
       OATPP_ASSERT(row->f_int64 == std::numeric_limits<v_int64>::min());
       OATPP_ASSERT(row->f_bool == true);
+      OATPP_ASSERT(row->f_enum == TestEnum::VAL_2);
     }
 
     {
@@ -180,6 +195,7 @@ void IntTest::onRun() {
       OATPP_ASSERT(row->f_int32 == std::numeric_limits<v_int32>::max());
       OATPP_ASSERT(row->f_int64 == std::numeric_limits<v_int64>::max());
       OATPP_ASSERT(row->f_bool == true);
+      OATPP_ASSERT(row->f_enum == TestEnum::VAL_3);
     }
 
   }
