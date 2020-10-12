@@ -131,6 +131,13 @@ void Executor::bindParams(sqlite3_stmt* stmt,
 
   data::mapping::TypeResolver::Cache cache;
 
+  auto extra = std::static_pointer_cast<ql_template::Parser::TemplateExtra>(queryTemplate.getExtraData());
+
+  oatpp::String queryName = extra->templateName;
+  if(!queryName) {
+    queryName = "UnNamed";
+  }
+
   auto count = queryTemplate.getTemplateVariables().size();
 
   for(v_uint32 i = 0; i < count; i ++) {
@@ -144,8 +151,11 @@ void Executor::bindParams(sqlite3_stmt* stmt,
       if(it != params.end()) {
         auto value = typeResolver->resolveObjectPropertyValue(it->second, queryParameter.propertyPath, cache);
         if(value.valueType->classId.id == oatpp::Void::Class::CLASS_ID.id) {
-          throw std::runtime_error("[oatpp::sqlite::Executor::bindParams()]: "
-                                   "Error. Can't bind object property. Property not found or its type is unknown.");
+          throw std::runtime_error("[oatpp::postgresql::Executor::QueryParams::QueryParams()]: "
+                                   "Error."
+                                   " Query '" + queryName->std_str() +
+                                   "', parameter '" + var.name->std_str() +
+                                   "' - property not found or its type is unknown.");
         }
         m_serializer.serialize(stmt, i + 1, value);
         continue;

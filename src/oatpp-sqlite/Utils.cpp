@@ -22,15 +22,15 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_sqlite_orm_hpp
-#define oatpp_sqlite_orm_hpp
-
-#include "Executor.hpp"
-#include "Types.hpp"
 #include "Utils.hpp"
 
-#include "oatpp/orm/SchemaMigration.hpp"
-#include "oatpp/orm/DbClient.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+namespace oatpp { namespace sqlite {
 
-#endif // oatpp_sqlite_orm_hpp
+v_int64 Utils::getLastInsertRowId(const std::shared_ptr<orm::Connection>& connection) {
+
+  auto c = std::static_pointer_cast<Connection>(connection);
+  return sqlite3_last_insert_rowid(c->getHandle());
+
+}
+
+}}
