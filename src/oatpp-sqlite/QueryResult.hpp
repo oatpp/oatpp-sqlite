@@ -32,6 +32,9 @@
 
 namespace oatpp { namespace sqlite {
 
+/**
+ * Implementation of &id:oatpp::orm::QueryResult;. for SQLite.
+ */
 class QueryResult : public orm::QueryResult {
 private:
   sqlite3_stmt* m_stmt;

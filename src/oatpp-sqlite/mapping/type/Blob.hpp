@@ -34,6 +34,9 @@ namespace __class {
   class Blob;
 }
 
+/**
+ * Blob type. <br>
+ */
 typedef oatpp::data::mapping::type::ObjectWrapper<base::StrBuffer, __class::Blob> Blob;
 
 namespace __class {

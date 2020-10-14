@@ -30,6 +30,9 @@
 
 namespace oatpp { namespace sqlite { namespace ql_template {
 
+/**
+ * &id:oatpp::data::share::StringTemplate::ValueProvider;
+ */
 class TemplateValueProvider : public data::share::StringTemplate::ValueProvider {
 private:
   data::stream::BufferOutputStream m_buffStream;

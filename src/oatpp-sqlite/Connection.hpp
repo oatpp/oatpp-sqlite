@@ -33,9 +33,16 @@
 
 namespace oatpp { namespace sqlite {
 
+/**
+ * Implementation of &id:oatpp::orm::Connection; for SQLite.
+ */
 class Connection : public orm::Connection {
 public:
 
+  /**
+   * Get SQLite native connection handle.
+   * @return
+   */
   virtual sqlite3* getHandle() = 0;
 
   virtual void setPrepared(const oatpp::String& statementName) = 0;

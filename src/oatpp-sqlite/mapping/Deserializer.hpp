@@ -32,6 +32,9 @@
 
 namespace oatpp { namespace sqlite { namespace mapping {
 
+/**
+ * Mapper from SQLite values to oatpp values.
+ */
 class Deserializer {
 public:
   typedef oatpp::data::mapping::type::Type Type;

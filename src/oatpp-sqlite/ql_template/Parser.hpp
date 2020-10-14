@@ -32,12 +32,30 @@
 
 namespace oatpp { namespace sqlite { namespace ql_template {
 
+/**
+ * Query template parser.
+ */
 class Parser {
 public:
 
+  /**
+   * Template extra info.
+   */
   struct TemplateExtra {
+
+    /**
+     * Template name.
+     */
     oatpp::String templateName;
+
+    /**
+     * Template text with parameters substituted to SQLite parameter placeholders.
+     */
     oatpp::String preparedTemplate;
+
+    /**
+     * Use prepared statement for this query.
+     */
     bool prepare;
   };
 
@@ -47,6 +65,11 @@ private:
   static void skipStringInDollars(parser::Caret& caret);
 public:
 
+  /**
+   * Parse query template.
+   * @param text
+   * @return - &id:oatpp::data::share::StringTemplate;.
+   */
   static data::share::StringTemplate parseTemplate(const oatpp::String& text);
 
 };

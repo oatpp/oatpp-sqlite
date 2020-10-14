@@ -30,6 +30,9 @@
 
 namespace oatpp { namespace sqlite { namespace mapping {
 
+/**
+ * Mapper of oatpp values to SQLite values.
+ */
 class Serializer {
 public:
   typedef void (*SerializerMethod)(const Serializer*, sqlite3_stmt*, v_uint32, const oatpp::Void&);

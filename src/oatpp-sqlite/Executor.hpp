@@ -38,6 +38,9 @@
 
 namespace oatpp { namespace sqlite {
 
+/**
+ * Implementation of &id:oatpp::orm::Executor;. for SQLite.
+ */
 class Executor : public orm::Executor {
 private:
 
