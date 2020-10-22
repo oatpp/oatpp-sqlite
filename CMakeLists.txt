@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 ###################################################################################################
 ## These variables are passed to oatpp-module-install.cmake script
@@ -6,9 +6,9 @@ cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
 set(OATPP_THIS_MODULE_NAME oatpp-sqlite) ## name of the module (also name of folders in installation dirs)
 set(OATPP_THIS_MODULE_VERSION "1.2.0") ## version of the module (also sufix of folders in installation dirs)
-set(OATPP_THIS_MODULE_LIBRARIES oatpp-sqlite sqlite) ## list of libraries to find when find_package is called
-set(OATPP_THIS_MODULE_TARGETS oatpp-sqlite sqlite) ## list of targets to install
-set(OATPP_THIS_MODULE_DIRECTORIES oatpp-sqlite sqlite) ## list of directories to install
+set(OATPP_THIS_MODULE_LIBRARIES oatpp-sqlite) ## list of libraries to find when find_package is called
+set(OATPP_THIS_MODULE_TARGETS oatpp-sqlite) ## list of targets to install
+set(OATPP_THIS_MODULE_DIRECTORIES oatpp-sqlite) ## list of directories to install
 
 ###################################################################################################
 
@@ -26,6 +26,17 @@ option(OATPP_BUILD_TESTS "Build tests for this module" ON)
 option(OATPP_INSTALL "Install module binaries" ON)
 
 set(OATPP_MODULES_LOCATION "INSTALLED" CACHE STRING "Location where to find oatpp modules. can be [INSTALLED|EXTERNAL|CUSTOM]")
+
+###################################################################################################
+## SQLite amalgamation
+
+option(OATPP_SQLITE_AMALGAMATION "Use SQLite amalgamation. SQLite amalgamation will be installed together with this module." ON)
+
+if(OATPP_SQLITE_AMALGAMATION)
+    list(APPEND OATPP_THIS_MODULE_LIBRARIES sqlite)
+    list(APPEND OATPP_THIS_MODULE_TARGETS sqlite)
+    list(APPEND OATPP_THIS_MODULE_DIRECTORIES sqlite)
+endif()
 
 ###################################################################################################
 ## get oatpp main module in specified location
@@ -92,7 +103,15 @@ endif()
 message("\n############################################################################")
 message("## ${OATPP_THIS_MODULE_NAME} module. Resolving dependencies...\n")
 
+if(NOT OATPP_SQLITE_AMALGAMATION)
 
+    find_package(SQLite3 REQUIRED)
+
+    message("SQLite3_INCLUDE_DIRS=${SQLite3_INCLUDE_DIRS}")
+    message("SQLite3_LIBRARIES=${SQLite3_LIBRARIES}")
+    message("SQLite3_VERSION=${SQLite3_VERSION}")
+
+endif()
 
 message("\n############################################################################\n")
 

@@ -1,15 +1,19 @@
-add_library(sqlite
-        sqlite/sqlite3.c
-        sqlite/sqlite3.h
-)
+if(OATPP_SQLITE_AMALGAMATION)
 
-target_include_directories(sqlite PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-)
+    add_library(sqlite
+            sqlite/sqlite3.c
+            sqlite/sqlite3.h
+    )
 
-if(CMAKE_SYSTEM_NAME MATCHES Linux)
-    find_package(Threads REQUIRED)
-    target_link_libraries(sqlite INTERFACE Threads::Threads ${CMAKE_DL_LIBS})
+    target_include_directories(sqlite
+            PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/sqlite
+    )
+
+    if(CMAKE_SYSTEM_NAME MATCHES Linux)
+        find_package(Threads REQUIRED)
+        target_link_libraries(sqlite INTERFACE Threads::Threads ${CMAKE_DL_LIBS})
+    endif()
+
 endif()
 
 add_library(${OATPP_THIS_MODULE_NAME}
@@ -49,17 +53,27 @@ if(OATPP_MODULES_LOCATION STREQUAL OATPP_MODULES_LOCATION_EXTERNAL)
     add_dependencies(${OATPP_THIS_MODULE_NAME} ${LIB_OATPP_EXTERNAL})
 endif()
 
-target_link_oatpp(${OATPP_THIS_MODULE_NAME})
-
-target_link_libraries(${OATPP_THIS_MODULE_NAME}
-        PUBLIC sqlite
-)
-
 target_include_directories(${OATPP_THIS_MODULE_NAME}
         PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
-add_dependencies(${OATPP_THIS_MODULE_NAME} sqlite)
+target_link_oatpp(${OATPP_THIS_MODULE_NAME})
+
+if(OATPP_SQLITE_AMALGAMATION)
+
+    target_link_libraries(${OATPP_THIS_MODULE_NAME}
+            PUBLIC sqlite
+    )
+
+    add_dependencies(${OATPP_THIS_MODULE_NAME} sqlite)
+
+else()
+
+    target_link_libraries(${OATPP_THIS_MODULE_NAME}
+            PUBLIC SQLite::SQLite3
+    )
+
+endif()
 
 #######################################################################################################
 ## install targets

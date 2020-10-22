@@ -26,7 +26,7 @@
 #define oatpp_sqlite_mapping_Serializer_hpp
 
 #include "oatpp/core/Types.hpp"
-#include "sqlite/sqlite3.h"
+#include <sqlite3.h>
 
 namespace oatpp { namespace sqlite { namespace mapping {
 

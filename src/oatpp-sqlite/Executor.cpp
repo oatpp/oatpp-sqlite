@@ -151,7 +151,7 @@ void Executor::bindParams(sqlite3_stmt* stmt,
       if(it != params.end()) {
         auto value = typeResolver->resolveObjectPropertyValue(it->second, queryParameter.propertyPath, cache);
         if(value.valueType->classId.id == oatpp::Void::Class::CLASS_ID.id) {
-          throw std::runtime_error("[oatpp::postgresql::Executor::QueryParams::QueryParams()]: "
+          throw std::runtime_error("[oatpp::sqlite::Executor::QueryParams::QueryParams()]: "
                                    "Error."
                                    " Query '" + queryName->std_str() +
                                    "', parameter '" + var.name->std_str() +
