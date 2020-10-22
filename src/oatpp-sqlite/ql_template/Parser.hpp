@@ -28,7 +28,7 @@
 #include "oatpp/core/data/share/StringTemplate.hpp"
 #include "oatpp/core/parser/Caret.hpp"
 
-#include "sqlite/sqlite3.h"
+#include <sqlite3.h>
 
 namespace oatpp { namespace sqlite { namespace ql_template {
 
