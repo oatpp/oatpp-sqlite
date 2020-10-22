@@ -20,7 +20,10 @@ More about Oat++:
    make install
    ```
 
-*This module uses [SQLite amalgamation](https://www.sqlite.org/amalgamation.html) which will be installed as a part of this module.*
+**Note:**
+
+- By default this module uses [SQLite amalgamation](https://www.sqlite.org/amalgamation.html) which will be installed as a part of this module.
+- Use `-DOATPP_SQLITE_AMALGAMATION=OFF` cmake option to link external SQLite library.
    
 ## API
 
