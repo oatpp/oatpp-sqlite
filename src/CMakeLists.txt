@@ -6,8 +6,15 @@ if(OATPP_SQLITE_AMALGAMATION)
     )
 
     target_include_directories(sqlite
-            PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/sqlite
+            PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/sqlite>
     )
+
+    if(OATPP_INSTALL)
+        include(GNUInstallDirs)
+        target_include_directories(sqlite
+                PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/oatpp-${OATPP_THIS_MODULE_VERSION}/${OATPP_THIS_MODULE_NAME}/sqlite>
+        )
+    endif()
 
     if(CMAKE_SYSTEM_NAME MATCHES Linux)
         find_package(Threads REQUIRED)
