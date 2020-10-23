@@ -30,7 +30,7 @@ set(OATPP_MODULES_LOCATION "INSTALLED" CACHE STRING "Location where to find oatp
 ###################################################################################################
 ## SQLite amalgamation
 
-option(OATPP_SQLITE_AMALGAMATION "Use SQLite amalgamation. SQLite amalgamation will be installed together with this module." ON)
+option(OATPP_SQLITE_AMALGAMATION "Use SQLite amalgamation. SQLite amalgamation will be installed together with this module." OFF)
 
 if(OATPP_SQLITE_AMALGAMATION)
     list(APPEND OATPP_THIS_MODULE_LIBRARIES sqlite)
