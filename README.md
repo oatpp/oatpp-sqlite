@@ -10,7 +10,14 @@ More about Oat++:
 
 ## Build And Install
 
-*Note: you need to install the main [oatpp](https://github.com/oatpp/oatpp) module first.*
+### Pre Requirements
+
+- Install the main [oatpp](https://github.com/oatpp/oatpp) module.
+- Install SQLite.  
+   *Note: You can also use `-DOATPP_SQLITE_AMALGAMATION=ON` to install oatpp-sqlite together with [SQLite amalgamation](https://www.sqlite.org/amalgamation.html) 
+   in which case you don't need to install SQLite*
+
+### Install module
 
 - Clone this repository.
 - In the root of the repository run:
@@ -19,11 +26,6 @@ More about Oat++:
    cmake ..
    make install
    ```
-
-**Note:**
-
-- By default this module uses [SQLite amalgamation](https://www.sqlite.org/amalgamation.html) which will be installed as a part of this module.
-- Use `-DOATPP_SQLITE_AMALGAMATION=OFF` cmake option to link external SQLite library.
    
 ## API
 
