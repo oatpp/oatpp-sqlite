@@ -105,7 +105,7 @@ message("## ${OATPP_THIS_MODULE_NAME} module. Resolving dependencies...\n")
 
 if(NOT OATPP_SQLITE_AMALGAMATION)
 
-    find_package(SQLite3 REQUIRED)
+    find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
     message("SQLite3_INCLUDE_DIRS=${SQLite3_INCLUDE_DIRS}")
     message("SQLite3_LIBRARIES=${SQLite3_LIBRARIES}")

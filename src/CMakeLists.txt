@@ -77,7 +77,7 @@ if(OATPP_SQLITE_AMALGAMATION)
 else()
 
     target_link_libraries(${OATPP_THIS_MODULE_NAME}
-            PUBLIC SQLite::SQLite3
+            PUBLIC unofficial::sqlite3::sqlite3
     )
 
 endif()
