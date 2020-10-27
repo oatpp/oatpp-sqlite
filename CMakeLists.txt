@@ -105,7 +105,7 @@ message("## ${OATPP_THIS_MODULE_NAME} module. Resolving dependencies...\n")
 
 if(NOT OATPP_SQLITE_AMALGAMATION)
 
-
+#In case of vcpkg, specific finding is required because of unofficiality
 if(VCPKG_TOOLCHAIN )
 message("\nvcpkg is on\n")
 find_package(unofficial-sqlite3 CONFIG REQUIRED)

@@ -75,9 +75,9 @@ if(OATPP_SQLITE_AMALGAMATION)
     add_dependencies(${OATPP_THIS_MODULE_NAME} sqlite)
 
 else()
-
+#In case of vcpkg, specific linking is required because of unofficiality
 if(VCPKG_TOOLCHAIN )
-message("vcpkg is on")
+message("\nvcpkg is on\n")
 target_link_libraries(${OATPP_THIS_MODULE_NAME}
             PUBLIC unofficial::sqlite3::sqlite3
     )
