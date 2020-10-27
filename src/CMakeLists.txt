@@ -76,9 +76,21 @@ if(OATPP_SQLITE_AMALGAMATION)
 
 else()
 
-    target_link_libraries(${OATPP_THIS_MODULE_NAME}
+if(VCPKG_TOOLCHAIN )
+message("vcpkg is on")
+target_link_libraries(${OATPP_THIS_MODULE_NAME}
+            PUBLIC unofficial::sqlite3::sqlite3
+    )
+
+else()
+
+target_link_libraries(${OATPP_THIS_MODULE_NAME}
             PUBLIC SQLite::SQLite3
     )
+
+endif()
+
+    
 
 endif()
 
