@@ -103,25 +103,21 @@ endif()
 message("\n############################################################################")
 message("## ${OATPP_THIS_MODULE_NAME} module. Resolving dependencies...\n")
 
-if(NOT OATPP_SQLITE_AMALGAMATION)
+if (NOT OATPP_SQLITE_AMALGAMATION)
 
-#In case of vcpkg, specific finding is required because of unofficiality
-if(VCPKG_TOOLCHAIN )
-message("\nvcpkg is on\n")
-find_package(unofficial-sqlite3 CONFIG REQUIRED)
-
-else()
-
-find_package(SQLite3 REQUIRED)
-endif()
-
-    
+    #In case of vcpkg, specific finding is required because of unofficiality
+    if (VCPKG_TOOLCHAIN)
+        message("\nvcpkg is on\n")
+        find_package(unofficial-sqlite3 CONFIG REQUIRED)
+    else ()
+        find_package(SQLite3 REQUIRED)
+    endif ()
 
     message("SQLite3_INCLUDE_DIRS=${SQLite3_INCLUDE_DIRS}")
     message("SQLite3_LIBRARIES=${SQLite3_LIBRARIES}")
     message("SQLite3_VERSION=${SQLite3_VERSION}")
 
-endif()
+endif ()
 
 message("\n############################################################################\n")
 

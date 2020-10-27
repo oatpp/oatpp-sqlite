@@ -66,33 +66,32 @@ target_include_directories(${OATPP_THIS_MODULE_NAME}
 
 target_link_oatpp(${OATPP_THIS_MODULE_NAME})
 
-if(OATPP_SQLITE_AMALGAMATION)
+if (OATPP_SQLITE_AMALGAMATION)
 
     target_link_libraries(${OATPP_THIS_MODULE_NAME}
             PUBLIC sqlite
-    )
+            )
 
     add_dependencies(${OATPP_THIS_MODULE_NAME} sqlite)
 
-else()
-#In case of vcpkg, specific linking is required because of unofficiality
-if(VCPKG_TOOLCHAIN )
-message("\nvcpkg is on\n")
-target_link_libraries(${OATPP_THIS_MODULE_NAME}
-            PUBLIC unofficial::sqlite3::sqlite3
-    )
+else ()
+    #In case of vcpkg, specific linking is required because of unofficiality
+    if (VCPKG_TOOLCHAIN)
+        message("\nvcpkg is on\n")
+        target_link_libraries(${OATPP_THIS_MODULE_NAME}
+                PUBLIC unofficial::sqlite3::sqlite3
+                )
 
-else()
+    else ()
 
-target_link_libraries(${OATPP_THIS_MODULE_NAME}
-            PUBLIC SQLite::SQLite3
-    )
+        target_link_libraries(${OATPP_THIS_MODULE_NAME}
+                PUBLIC SQLite::SQLite3
+                )
 
-endif()
+    endif ()
 
-    
 
-endif()
+endif ()
 
 #######################################################################################################
 ## install targets
