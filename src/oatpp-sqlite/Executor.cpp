@@ -94,7 +94,11 @@ data::share::StringTemplate Executor::parseQueryTemplate(const oatpp::String& na
 }
 
 std::shared_ptr<orm::Connection> Executor::getConnection() {
-  return m_connectionProvider->get();
+  auto connection = m_connectionProvider->get();
+  if(connection) {
+    return connection;
+  }
+  throw std::runtime_error("[oatpp::sqlite::Executor::getConnection()]: Error. Can't connect.");
 }
 
 Executor::QueryParameter Executor::parseQueryParameter(const oatpp::String& paramName) {
