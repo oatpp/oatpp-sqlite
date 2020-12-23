@@ -4,6 +4,8 @@ add_definitions (
 )
 
 add_executable(module-tests
+        oatpp-sqlite/ql_template/ParserTest.cpp
+        oatpp-sqlite/ql_template/ParserTest.hpp
         oatpp-sqlite/types/BlobTest.cpp
         oatpp-sqlite/types/BlobTest.hpp
         oatpp-sqlite/types/InterpretationTest.cpp
