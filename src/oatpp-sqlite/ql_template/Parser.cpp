@@ -24,9 +24,85 @@
 
 #include "Parser.hpp"
 
+#include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/parser/ParsingError.hpp"
 
 namespace oatpp { namespace sqlite { namespace ql_template {
+
+oatpp::String Parser::preprocess(const oatpp::String& text, std::vector<CleanSection>& cleanSections) {
+
+  data::stream::BufferOutputStream ss;
+  parser::Caret caret(text);
+
+  bool writeChar = true;
+
+  v_buff_size sectionStart = -1;
+
+  while(caret.canContinue()) {
+
+    v_char8 c = *caret.getCurrData();
+    writeChar = true;
+
+    switch(c) {
+
+      case '\'': {
+        auto l = caret.putLabel();
+        skipStringInQuotes(caret);
+        ss.writeSimple(l.getData(), l.getSize());
+        writeChar = false;
+        break;
+      }
+      case '$': {
+        auto l = caret.putLabel();
+        skipStringInDollars(caret);
+        ss.writeSimple(l.getData(), l.getSize());
+        writeChar = false;
+        break;
+      }
+
+      case '<': {
+        if(sectionStart == -1) {
+          if(caret.isAtText((p_char8) "<!!", 3, true)) {
+            sectionStart = ss.getCurrentPosition();
+            writeChar = false;
+          } else {
+            caret.inc();
+          }
+        } else {
+          caret.inc();
+        }
+        break;
+      }
+
+      case '!': {
+        if(sectionStart != -1) {
+          if(caret.isAtText((p_char8) "!!>", 3, true)) {
+            cleanSections.emplace_back(CleanSection(sectionStart, ss.getCurrentPosition() - sectionStart));
+            sectionStart = -1;
+            writeChar = false;
+          } else {
+            caret.inc();
+          }
+        } else {
+          caret.inc();
+        }
+        break;
+      }
+
+      default:
+        caret.inc();
+
+    }
+
+    if(writeChar) {
+      ss.writeCharSimple(c);
+    }
+
+  }
+
+  return ss.toString();
+
+}
 
 data::share::StringTemplate::Variable Parser::parseIdentifier(parser::Caret& caret) {
   data::share::StringTemplate::Variable result;
@@ -99,10 +175,22 @@ void Parser::skipStringInDollars(parser::Caret& caret) {
 
 data::share::StringTemplate Parser::parseTemplate(const oatpp::String& text) {
 
+  std::vector<CleanSection> cleanSections;
+  auto processedText = preprocess(text, cleanSections);
+
+  parser::Caret caret(processedText);
+
   std::vector<data::share::StringTemplate::Variable> variables;
 
-  parser::Caret caret(text);
+  v_buff_size currSection = 0;
+
   while(caret.canContinue()) {
+
+    if(currSection < cleanSections.size() && cleanSections[currSection].position == caret.getPosition()) {
+      caret.inc(cleanSections[currSection].size);
+      currSection ++;
+      continue;
+    }
 
     v_char8 c = *caret.getCurrData();
 
@@ -130,7 +218,7 @@ data::share::StringTemplate Parser::parseTemplate(const oatpp::String& text) {
     throw oatpp::parser::ParsingError(caret.getErrorMessage(), caret.getErrorCode(), caret.getPosition());
   }
 
-  return data::share::StringTemplate(text, std::move(variables));
+  return data::share::StringTemplate(processedText, std::move(variables));
 
 }
 

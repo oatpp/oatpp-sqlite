@@ -1,4 +1,6 @@
 
+#include "ql_template/ParserTest.hpp"
+
 #include "types/BlobTest.hpp"
 #include "types/IntTest.hpp"
 #include "types/NumericTest.hpp"
@@ -9,6 +11,8 @@
 namespace {
 
 void runTests() {
+
+  OATPP_RUN_TEST(oatpp::test::sqlite::ql_template::ParserTest);
 
   OATPP_RUN_TEST(oatpp::test::sqlite::types::IntTest);
   OATPP_RUN_TEST(oatpp::test::sqlite::types::NumericTest);
