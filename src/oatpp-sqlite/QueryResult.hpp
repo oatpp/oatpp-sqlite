@@ -42,8 +42,7 @@ private:
   std::shared_ptr<provider::Provider<Connection>> m_connectionProvider;
   std::shared_ptr<mapping::ResultMapper> m_resultMapper;
   mapping::ResultMapper::ResultData m_resultData;
-private:
-  mapping::Deserializer m_deserializer;
+  oatpp::String m_errorMessage;
 public:
 
   QueryResult(sqlite3_stmt* stmt,
