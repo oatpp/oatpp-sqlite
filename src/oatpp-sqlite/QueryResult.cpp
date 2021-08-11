@@ -36,6 +36,7 @@ QueryResult::QueryResult(sqlite3_stmt* stmt,
   , m_connectionProvider(connectionProvider)
   , m_resultMapper(resultMapper)
   , m_resultData(stmt, typeResolver)
+  , m_errorMessage(sqlite3_errmsg(m_connection->getHandle()))
 {}
 
 QueryResult::~QueryResult() {
@@ -51,7 +52,7 @@ bool QueryResult::isSuccess() const {
 }
 
 oatpp::String QueryResult::getErrorMessage() const {
-  return oatpp::String(sqlite3_errmsg(m_connection->getHandle()));
+  return m_errorMessage;
 }
 
 v_int64 QueryResult::getPosition() const {
