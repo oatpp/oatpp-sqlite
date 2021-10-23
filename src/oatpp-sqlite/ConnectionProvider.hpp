@@ -35,12 +35,12 @@ namespace oatpp { namespace sqlite {
 /**
  * Connection provider.
  */
-class ConnectionProvider : public provider::Provider<Connection> {
+class ConnectionProvider : public provider::Provider<orm::Connection> {
 private:
 
-  class ConnectionInvalidator : public provider::Invalidator<Connection> {
+  class ConnectionInvalidator : public provider::Invalidator<orm::Connection> {
   public:
-    void invalidate(const std::shared_ptr<Connection>& connection) override;
+    void invalidate(const std::shared_ptr<orm::Connection>& connection) override;
   };
 
 private:
@@ -58,13 +58,13 @@ public:
    * Get Connection.
    * @return - resource.
    */
-  provider::ResourceHandle<Connection> get() override;
+  provider::ResourceHandle<orm::Connection> get() override;
 
   /**
    * Get Connection in Async manner.
    * @return - &id:oatpp::async::CoroutineStarterForResult; of `Connection`.
    */
-  async::CoroutineStarterForResult<const provider::ResourceHandle<Connection>&> getAsync() override;
+  async::CoroutineStarterForResult<const provider::ResourceHandle<orm::Connection>&> getAsync() override;
 
   /**
    * Stop provider and free associated resources.
@@ -79,7 +79,7 @@ public:
  * - &id:oatpp::sqlite::ConnectionAcquisitionProxy;.
  */
 typedef oatpp::provider::Pool<
-  provider::Provider<Connection>,
+  provider::Provider<orm::Connection>,
   Connection,
   ConnectionAcquisitionProxy
 > ConnectionPool;

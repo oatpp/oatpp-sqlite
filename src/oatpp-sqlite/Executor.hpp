@@ -59,20 +59,20 @@ private:
                   const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver);
 
   std::shared_ptr<orm::QueryResult> exec(const oatpp::String& statement,
-                                         const std::shared_ptr<orm::Connection>& connection = nullptr);
+                                         const provider::ResourceHandle<orm::Connection>& connection = nullptr);
 
   oatpp::String getSchemaVersionTableName(const oatpp::String& suffix);
   std::shared_ptr<orm::QueryResult> updateSchemaVersion(v_int64 newVersion,
                                                         const oatpp::String& suffix,
-                                                        const std::shared_ptr<orm::Connection>& connection);
+                                                        const provider::ResourceHandle<orm::Connection>& connection);
 
 private:
-  std::shared_ptr<provider::Provider<Connection>> m_connectionProvider;
+  std::shared_ptr<provider::Provider<orm::Connection>> m_connectionProvider;
   std::shared_ptr<mapping::ResultMapper> m_resultMapper;
   mapping::Serializer m_serializer;
 public:
 
-  Executor(const std::shared_ptr<provider::Provider<Connection>>& connectionProvider);
+  Executor(const std::shared_ptr<provider::Provider<orm::Connection>>& connectionProvider);
 
   std::shared_ptr<data::mapping::TypeResolver> createTypeResolver() override;
 
@@ -81,26 +81,26 @@ public:
                                     const ParamsTypeMap& paramsTypeMap,
                                     bool prepare) override;
 
-  std::shared_ptr<orm::Connection> getConnection() override;
+  provider::ResourceHandle<orm::Connection> getConnection() override;
 
   std::shared_ptr<orm::QueryResult> execute(const StringTemplate& queryTemplate,
                                             const std::unordered_map<oatpp::String, oatpp::Void>& params,
                                             const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver,
-                                            const std::shared_ptr<orm::Connection>& connection) override;
+                                            const provider::ResourceHandle<orm::Connection>& connection) override;
 
-  std::shared_ptr<orm::QueryResult> begin(const std::shared_ptr<orm::Connection>& connection = nullptr) override;
+  std::shared_ptr<orm::QueryResult> begin(const provider::ResourceHandle<orm::Connection>& connection = nullptr) override;
 
-  std::shared_ptr<orm::QueryResult> commit(const std::shared_ptr<orm::Connection>& connection) override;
+  std::shared_ptr<orm::QueryResult> commit(const provider::ResourceHandle<orm::Connection>& connection) override;
 
-  std::shared_ptr<orm::QueryResult> rollback(const std::shared_ptr<orm::Connection>& connection) override;
+  std::shared_ptr<orm::QueryResult> rollback(const provider::ResourceHandle<orm::Connection>& connection) override;
 
   v_int64 getSchemaVersion(const oatpp::String& suffix = nullptr,
-                           const std::shared_ptr<orm::Connection>& connection = nullptr) override;
+                           const provider::ResourceHandle<orm::Connection>& connection = nullptr) override;
 
   void migrateSchema(const oatpp::String& script,
                      v_int64 newVersion,
                      const oatpp::String& suffix = nullptr,
-                     const std::shared_ptr<orm::Connection>& connection = nullptr) override;
+                     const provider::ResourceHandle<orm::Connection>& connection = nullptr) override;
 
 };
 

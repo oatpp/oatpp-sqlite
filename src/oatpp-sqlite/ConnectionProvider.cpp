@@ -26,7 +26,8 @@
 
 namespace oatpp { namespace sqlite {
 
-void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr<Connection> &connection) {
+void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr<orm::Connection> &connection) {
+  (void) connection;
   // DO nothing
 }
 
@@ -34,7 +35,7 @@ ConnectionProvider::ConnectionProvider(const oatpp::String& connectionString)
   : m_connectionString(connectionString)
 {}
 
-provider::ResourceHandle<Connection> ConnectionProvider::get() {
+provider::ResourceHandle<orm::Connection> ConnectionProvider::get() {
 
   sqlite3* handle;
   auto res = sqlite3_open(m_connectionString->c_str(), &handle);
@@ -46,11 +47,11 @@ provider::ResourceHandle<Connection> ConnectionProvider::get() {
                              "Error. Can't connect. " + errMsg);
   }
 
-  return provider::ResourceHandle<Connection>(connection, m_invalidator);
+  return provider::ResourceHandle<orm::Connection>(connection, m_invalidator);
 
 }
 
-async::CoroutineStarterForResult<const provider::ResourceHandle<Connection>&> ConnectionProvider::getAsync() {
+async::CoroutineStarterForResult<const provider::ResourceHandle<orm::Connection>&> ConnectionProvider::getAsync() {
   throw std::runtime_error("[oatpp::sqlite::ConnectionProvider::getAsync()]: Error. Not implemented!");
 }
 

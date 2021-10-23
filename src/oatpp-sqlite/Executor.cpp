@@ -54,7 +54,7 @@ class VersionRow : public oatpp::DTO {
 
 }
 
-Executor::Executor(const std::shared_ptr<provider::Provider<Connection>>& connectionProvider)
+Executor::Executor(const std::shared_ptr<provider::Provider<orm::Connection>>& connectionProvider)
   : m_connectionProvider(connectionProvider)
   , m_resultMapper(std::make_shared<mapping::ResultMapper>())
 {
@@ -93,10 +93,10 @@ data::share::StringTemplate Executor::parseQueryTemplate(const oatpp::String& na
 
 }
 
-std::shared_ptr<orm::Connection> Executor::getConnection() {
+provider::ResourceHandle<orm::Connection> Executor::getConnection() {
   auto connection = m_connectionProvider->get();
   if(connection) {
-    return connection.object;
+    return connection;
   }
   throw std::runtime_error("[oatpp::sqlite::Executor::getConnection()]: Error. Can't connect.");
 }
@@ -177,10 +177,10 @@ void Executor::bindParams(sqlite3_stmt* stmt,
 std::shared_ptr<orm::QueryResult> Executor::execute(const StringTemplate& queryTemplate,
                                                     const std::unordered_map<oatpp::String, oatpp::Void>& params,
                                                     const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver,
-                                                    const std::shared_ptr<orm::Connection>& connection)
+                                                    const provider::ResourceHandle<orm::Connection>& connection)
 {
 
-  std::shared_ptr<orm::Connection> conn = connection;
+  auto conn = connection;
   if(!conn) {
     conn = getConnection();
   }
@@ -190,48 +190,47 @@ std::shared_ptr<orm::QueryResult> Executor::execute(const StringTemplate& queryT
     tr = m_defaultTypeResolver;
   }
 
-  auto pgConnection = std::static_pointer_cast<sqlite::Connection>(conn);
+  auto sqliteConn = std::static_pointer_cast<sqlite::Connection>(conn.object);
 
   auto extra = std::static_pointer_cast<ql_template::Parser::TemplateExtra>(queryTemplate.getExtraData());
 
   sqlite3_stmt* stmt = nullptr;
-  auto res = sqlite3_prepare_v2(pgConnection->getHandle(),
+  auto res = sqlite3_prepare_v2(sqliteConn->getHandle(),
                                 extra->preparedTemplate->c_str(),
                                 extra->preparedTemplate->size(),
                                 &stmt,
                                 nullptr);
 
-  // TODO check for res {
-  (void) res;
-  // TODO check for res }
+  (void) res; // TODO check for res
 
   bindParams(stmt, queryTemplate, params, tr);
 
-  return std::make_shared<QueryResult>(stmt, pgConnection, m_connectionProvider, m_resultMapper, tr);
+  return std::make_shared<QueryResult>(stmt, conn, m_resultMapper, tr);
 
 }
 
 std::shared_ptr<orm::QueryResult> Executor::exec(const oatpp::String& statement,
-                                                 const std::shared_ptr<orm::Connection>& connection)
+                                                 const provider::ResourceHandle<orm::Connection>& connection)
 {
 
-  std::shared_ptr<orm::Connection> conn = connection;
+  auto conn = connection;
   if(!conn) {
     conn = getConnection();
   }
 
-  auto pgConnection = std::static_pointer_cast<sqlite::Connection>(conn);
+  auto sqliteConn = std::static_pointer_cast<sqlite::Connection>(conn.object);
   sqlite3_stmt* stmt;
-  auto res = sqlite3_prepare_v2(pgConnection->getHandle(), statement->c_str(), -1, &stmt, nullptr);
-  return std::make_shared<QueryResult>(stmt, pgConnection, m_connectionProvider, m_resultMapper, m_defaultTypeResolver);
+  auto res = sqlite3_prepare_v2(sqliteConn->getHandle(), statement->c_str(), -1, &stmt, nullptr);
+  (void) res; // TODO - check for res
+  return std::make_shared<QueryResult>(stmt, conn, m_resultMapper, m_defaultTypeResolver);
 
 }
 
-std::shared_ptr<orm::QueryResult> Executor::begin(const std::shared_ptr<orm::Connection>& connection) {
+std::shared_ptr<orm::QueryResult> Executor::begin(const provider::ResourceHandle<orm::Connection>& connection) {
   return exec("BEGIN", connection);
 }
 
-std::shared_ptr<orm::QueryResult> Executor::commit(const std::shared_ptr<orm::Connection>& connection) {
+std::shared_ptr<orm::QueryResult> Executor::commit(const provider::ResourceHandle<orm::Connection>& connection) {
   if(!connection) {
     throw std::runtime_error("[oatpp::sqlite::Executor::commit()]: "
                              "Error. Can't COMMIT - NULL connection.");
@@ -239,7 +238,7 @@ std::shared_ptr<orm::QueryResult> Executor::commit(const std::shared_ptr<orm::Co
   return exec("COMMIT", connection);
 }
 
-std::shared_ptr<orm::QueryResult> Executor::rollback(const std::shared_ptr<orm::Connection>& connection) {
+std::shared_ptr<orm::QueryResult> Executor::rollback(const provider::ResourceHandle<orm::Connection>& connection) {
   if(!connection) {
     throw std::runtime_error("[oatpp::sqlite::Executor::commit()]: "
                              "Error. Can't ROLLBACK - NULL connection.");
@@ -258,7 +257,7 @@ oatpp::String Executor::getSchemaVersionTableName(const oatpp::String& suffix) {
 
 std::shared_ptr<orm::QueryResult> Executor::updateSchemaVersion(v_int64 newVersion,
                                                                 const oatpp::String& suffix,
-                                                                const std::shared_ptr<orm::Connection>& connection)
+                                                                const provider::ResourceHandle<orm::Connection>& connection)
 {
   data::stream::BufferOutputStream stream;
   stream
@@ -269,7 +268,7 @@ std::shared_ptr<orm::QueryResult> Executor::updateSchemaVersion(v_int64 newVersi
 }
 
 v_int64 Executor::getSchemaVersion(const oatpp::String& suffix,
-                                   const std::shared_ptr<orm::Connection>& connection)
+                                   const provider::ResourceHandle<orm::Connection>& connection)
 {
 
   std::shared_ptr<orm::QueryResult> result;
@@ -327,7 +326,7 @@ v_int64 Executor::getSchemaVersion(const oatpp::String& suffix,
 void Executor::migrateSchema(const oatpp::String& script,
                              v_int64 newVersion,
                              const oatpp::String& suffix,
-                             const std::shared_ptr<orm::Connection>& connection)
+                             const provider::ResourceHandle<orm::Connection>& connection)
 {
 
   if(!script) {
@@ -353,8 +352,8 @@ void Executor::migrateSchema(const oatpp::String& script,
 
   {
 
-    auto nativeConnection = std::static_pointer_cast<sqlite::Connection>(connection);
-    orm::Transaction transaction(this, nativeConnection);
+    auto nativeConnection = std::static_pointer_cast<sqlite::Connection>(connection.object);
+    orm::Transaction transaction(this, connection);
 
     char* errmsg = nullptr;
     sqlite3_exec(nativeConnection->getHandle(), script->c_str(), nullptr, nullptr, &errmsg);
@@ -365,7 +364,7 @@ void Executor::migrateSchema(const oatpp::String& script,
     }
 
     std::shared_ptr<orm::QueryResult> result;
-    result = updateSchemaVersion(newVersion, suffix, nativeConnection);
+    result = updateSchemaVersion(newVersion, suffix, connection);
 
     if(!result->isSuccess() || result->hasMoreToFetch() > 0) {
       throw std::runtime_error("[oatpp::sqlite::Executor::migrateSchema()]: Error. Migration failed. Can't set new version.");

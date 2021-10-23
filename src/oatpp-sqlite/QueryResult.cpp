@@ -27,23 +27,23 @@
 namespace oatpp { namespace sqlite {
 
 QueryResult::QueryResult(sqlite3_stmt* stmt,
-                         const std::shared_ptr<Connection>& connection,
-                         const std::shared_ptr<provider::Provider<Connection>>& connectionProvider,
+                         const provider::ResourceHandle<orm::Connection>& connection,
                          const std::shared_ptr<mapping::ResultMapper>& resultMapper,
                          const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver)
   : m_stmt(stmt)
   , m_connection(connection)
-  , m_connectionProvider(connectionProvider)
   , m_resultMapper(resultMapper)
   , m_resultData(stmt, typeResolver)
-  , m_errorMessage(sqlite3_errmsg(m_connection->getHandle()))
-{}
+{
+  auto sqliteConn = std::static_pointer_cast<Connection>(m_connection.object);
+  m_errorMessage = sqlite3_errmsg(sqliteConn->getHandle());
+}
 
 QueryResult::~QueryResult() {
   sqlite3_finalize(m_stmt);
 }
 
-std::shared_ptr<orm::Connection> QueryResult::getConnection() const {
+provider::ResourceHandle<orm::Connection> QueryResult::getConnection() const {
   return m_connection;
 }
 

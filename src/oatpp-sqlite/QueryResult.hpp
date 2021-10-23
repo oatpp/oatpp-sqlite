@@ -38,22 +38,20 @@ namespace oatpp { namespace sqlite {
 class QueryResult : public orm::QueryResult {
 private:
   sqlite3_stmt* m_stmt;
-  std::shared_ptr<Connection> m_connection;
-  std::shared_ptr<provider::Provider<Connection>> m_connectionProvider;
+  provider::ResourceHandle<orm::Connection> m_connection;
   std::shared_ptr<mapping::ResultMapper> m_resultMapper;
   mapping::ResultMapper::ResultData m_resultData;
   oatpp::String m_errorMessage;
 public:
 
   QueryResult(sqlite3_stmt* stmt,
-              const std::shared_ptr<Connection>& connection,
-              const std::shared_ptr<provider::Provider<Connection>>& connectionProvider,
+              const provider::ResourceHandle<orm::Connection>& connection,
               const std::shared_ptr<mapping::ResultMapper>& resultMapper,
               const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver);
 
   ~QueryResult();
 
-  std::shared_ptr<orm::Connection> getConnection() const override;
+  provider::ResourceHandle<orm::Connection> getConnection() const override;
 
   bool isSuccess() const override;
 
