@@ -68,21 +68,21 @@ public:
 
 struct ConnectionAcquisitionProxy : public provider::AcquisitionProxy<Connection, ConnectionAcquisitionProxy> {
 
-  ConnectionAcquisitionProxy(const std::shared_ptr<Connection> &resource,
+  ConnectionAcquisitionProxy(const provider::ResourceHandle<Connection> &resource,
                              const std::shared_ptr<PoolInstance> &pool)
     : provider::AcquisitionProxy<Connection, ConnectionAcquisitionProxy>(resource, pool)
   {}
 
   sqlite3* getHandle() override {
-    return _obj->getHandle();
+    return _handle.object->getHandle();
   }
 
   void setPrepared(const oatpp::String& statementName) override {
-    _obj->setPrepared(statementName);
+    _handle.object->setPrepared(statementName);
   }
 
   bool isPrepared(const oatpp::String& statementName) override {
-    return _obj->isPrepared(statementName);
+    return _handle.object->isPrepared(statementName);
   }
 
 };

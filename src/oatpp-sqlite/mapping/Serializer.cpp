@@ -83,13 +83,13 @@ void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId
 }
 
 void Serializer::serialize(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) const {
-  auto id = polymorph.valueType->classId.id;
+  auto id = polymorph.getValueType()->classId.id;
   auto& method = m_methods[id];
   if(method) {
     (*method)(this, stmt, paramIndex, polymorph);
   } else {
     throw std::runtime_error("[oatpp::sqlite::mapping::Serializer::serialize()]: "
-                             "Error. No serialize method for type '" + std::string(polymorph.valueType->classId.name) +
+                             "Error. No serialize method for type '" + std::string(polymorph.getValueType()->classId.name) +
                              "'");
   }
 }
@@ -100,8 +100,8 @@ void Serializer::serialize(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp:
 void Serializer::serializeString(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   (void) _this;
   if(polymorph) {
-    base::StrBuffer *buff = static_cast<base::StrBuffer *>(polymorph.get());
-    sqlite3_bind_text(stmt, paramIndex, buff->c_str(), buff->getSize(), SQLITE_TRANSIENT);
+    std::string *buff = static_cast<std::string*>(polymorph.get());
+    sqlite3_bind_text(stmt, paramIndex, buff->c_str(), buff->size(), SQLITE_TRANSIENT);
   } else {
     sqlite3_bind_null(stmt, paramIndex);
   }
@@ -110,8 +110,8 @@ void Serializer::serializeString(const Serializer* _this, sqlite3_stmt* stmt, v_
 void Serializer::serializeBlob(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   (void) _this;
   if(polymorph) {
-    base::StrBuffer *buff = static_cast<base::StrBuffer *>(polymorph.get());
-    sqlite3_bind_blob(stmt, paramIndex, buff->c_str(), buff->getSize(), SQLITE_TRANSIENT);
+    std::string *buff = static_cast<std::string*>(polymorph.get());
+    sqlite3_bind_blob(stmt, paramIndex, buff->c_str(), buff->size(), SQLITE_TRANSIENT);
   } else {
     sqlite3_bind_null(stmt, paramIndex);
   }
@@ -230,7 +230,7 @@ void Serializer::serializeBoolean(const Serializer* _this, sqlite3_stmt* stmt, v
 void Serializer::serializeEnum(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
 
   auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
-    polymorph.valueType->polymorphicDispatcher
+    polymorph.getValueType()->polymorphicDispatcher
   );
 
   data::mapping::type::EnumInterpreterError e = data::mapping::type::EnumInterpreterError::OK;

@@ -56,7 +56,7 @@ namespace __class {
 
 typedef oatpp::data::mapping::type::Primitive<VPoint, __class::PointClass> Point;
 typedef oatpp::data::mapping::type::Primitive<VLine, __class::LineClass> Line;
-typedef oatpp::data::mapping::type::ObjectWrapper<base::StrBuffer, __class::StringNumberClass> StringNumber;
+typedef oatpp::data::mapping::type::ObjectWrapper<std::string, __class::StringNumberClass> StringNumber;
 
 namespace __class {
 
@@ -407,9 +407,9 @@ void InterpretationTest::onRun() {
       OATPP_ASSERT(line->f_x1 == 11);
       OATPP_ASSERT(line->f_y1 == 12);
       OATPP_ASSERT(line->f_z1 == 13);
-      OATPP_ASSERT(line->f_x2->equals("21"));
-      OATPP_ASSERT(line->f_y2->equals("22"));
-      OATPP_ASSERT(line->f_z2->equals("23"));
+      OATPP_ASSERT(*line->f_x2.get() == "21");
+      OATPP_ASSERT(*line->f_y2.get() == "22");
+      OATPP_ASSERT(*line->f_z2.get() == "23");
     }
 
   }

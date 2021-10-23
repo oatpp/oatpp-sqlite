@@ -124,7 +124,7 @@ oatpp::Void ResultMapper::readRowAsObject(ResultMapper* _this, ResultData* dbDat
 
   for(v_int32 i = 0; i < dbData->colCount; i ++) {
 
-    auto it = fieldsMap.find(dbData->colNames[i]->std_str());
+    auto it = fieldsMap.find(*dbData->colNames[i]);
 
     if(it != fieldsMap.end()) {
       auto field = it->second;
@@ -137,7 +137,7 @@ oatpp::Void ResultMapper::readRowAsObject(ResultMapper* _this, ResultData* dbDat
                  type->nameQualifier, dbData->colNames[i]->c_str());
       throw std::runtime_error("[oatpp::sqlite::mapping::ResultMapper::readRowAsObject]: Error. "
                                "The object of type " + std::string(type->nameQualifier) +
-                               " has no field to map column " + dbData->colNames[i]->std_str()  + ".");
+                               " has no field to map column " + *dbData->colNames[i]  + ".");
     }
 
   }

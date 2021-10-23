@@ -37,7 +37,7 @@ namespace __class {
 /**
  * Blob type. <br>
  */
-typedef oatpp::data::mapping::type::ObjectWrapper<base::StrBuffer, __class::Blob> Blob;
+typedef oatpp::data::mapping::type::ObjectWrapper<std::string, __class::Blob> Blob;
 
 namespace __class {
 
@@ -49,7 +49,7 @@ public:
 
     oatpp::String interpret(const type::Blob& value) const override {
       if(value) {
-        return encoding::Base64::encode(value->getData(), value->getSize());
+        return encoding::Base64::encode(value->data(), value->size());
       }
       return nullptr;
     }

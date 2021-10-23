@@ -94,7 +94,7 @@ void ParserTest::onRun() {
     {
       const auto& s = sections[0];
       OATPP_ASSERT(s.position == 0);
-      OATPP_ASSERT(s.size == result->getSize());
+      OATPP_ASSERT(s.size == result->size());
     }
   }
 

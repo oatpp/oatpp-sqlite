@@ -124,7 +124,7 @@ oatpp::Void Deserializer::deserializeString(const Deserializer* _this, const InD
 
   auto ptr = (const char*) sqlite3_column_text(data.stmt, data.col);
   auto size = sqlite3_column_bytes(data.stmt, data.col);
-  return oatpp::String(ptr, size, true);
+  return oatpp::String(ptr, size);
 
 }
 
@@ -139,7 +139,7 @@ oatpp::Void Deserializer::deserializeBlob(const Deserializer* _this, const InDat
 
   auto ptr = (const char*) sqlite3_column_blob(data.stmt, data.col);
   auto size = sqlite3_column_bytes(data.stmt, data.col);
-  return sqlite::Blob(base::StrBuffer::createShared(ptr, size, true));
+  return sqlite::Blob(std::make_shared<std::string>(ptr, size));
 
 }
 
@@ -207,7 +207,7 @@ oatpp::Void Deserializer::deserializeAny(const Deserializer* _this, const InData
   }
 
   auto value = _this->deserialize(data, valueType);
-  auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(value.getPtr(), value.valueType);
+  auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(value.getPtr(), value.getValueType());
   return oatpp::Void(anyHandle, Any::Class::getType());
 
 }

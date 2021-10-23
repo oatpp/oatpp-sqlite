@@ -37,6 +37,14 @@ namespace oatpp { namespace sqlite {
  */
 class ConnectionProvider : public provider::Provider<Connection> {
 private:
+
+  class ConnectionInvalidator : public provider::Invalidator<Connection> {
+  public:
+    void invalidate(const std::shared_ptr<Connection>& connection) override;
+  };
+
+private:
+  std::shared_ptr<ConnectionInvalidator> m_invalidator;
   oatpp::String m_connectionString;
 public:
 
@@ -50,19 +58,13 @@ public:
    * Get Connection.
    * @return - resource.
    */
-  std::shared_ptr<Connection> get() override;
+  provider::ResourceHandle<Connection> get() override;
 
   /**
    * Get Connection in Async manner.
    * @return - &id:oatpp::async::CoroutineStarterForResult; of `Connection`.
    */
-  async::CoroutineStarterForResult<const std::shared_ptr<Connection>&> getAsync() override;
-
-  /**
-   * Invalidate Connection that was previously created by this provider. <br>
-   * @param resource
-   */
-  void invalidate(const std::shared_ptr<Connection>& resource) override;
+  async::CoroutineStarterForResult<const provider::ResourceHandle<Connection>&> getAsync() override;
 
   /**
    * Stop provider and free associated resources.

@@ -96,7 +96,7 @@ data::share::StringTemplate Executor::parseQueryTemplate(const oatpp::String& na
 std::shared_ptr<orm::Connection> Executor::getConnection() {
   auto connection = m_connectionProvider->get();
   if(connection) {
-    return connection;
+    return connection.object;
   }
   throw std::runtime_error("[oatpp::sqlite::Executor::getConnection()]: Error. Can't connect.");
 }
@@ -154,11 +154,11 @@ void Executor::bindParams(sqlite3_stmt* stmt,
       it = params.find(queryParameter.name);
       if(it != params.end()) {
         auto value = typeResolver->resolveObjectPropertyValue(it->second, queryParameter.propertyPath, cache);
-        if(value.valueType->classId.id == oatpp::Void::Class::CLASS_ID.id) {
+        if(value.getValueType()->classId.id == oatpp::Void::Class::CLASS_ID.id) {
           throw std::runtime_error("[oatpp::sqlite::Executor::QueryParams::QueryParams()]: "
                                    "Error."
-                                   " Query '" + queryName->std_str() +
-                                   "', parameter '" + var.name->std_str() +
+                                   " Query '" + *queryName +
+                                   "', parameter '" + *var.name +
                                    "' - property not found or its type is unknown.");
         }
         m_serializer.serialize(stmt, i + 1, value);
@@ -168,7 +168,7 @@ void Executor::bindParams(sqlite3_stmt* stmt,
     }
 
     throw std::runtime_error("[oatpp::sqlite::Executor::bindParams()]: "
-                             "Error. Parameter not found " + var.name->std_str());
+                             "Error. Parameter not found " + *var.name);
 
   }
 
@@ -197,11 +197,13 @@ std::shared_ptr<orm::QueryResult> Executor::execute(const StringTemplate& queryT
   sqlite3_stmt* stmt = nullptr;
   auto res = sqlite3_prepare_v2(pgConnection->getHandle(),
                                 extra->preparedTemplate->c_str(),
-                                extra->preparedTemplate->getSize(),
+                                extra->preparedTemplate->size(),
                                 &stmt,
                                 nullptr);
 
-  // TODO check for res
+  // TODO check for res {
+  (void) res;
+  // TODO check for res }
 
   bindParams(stmt, queryTemplate, params, tr);
 
@@ -248,7 +250,7 @@ std::shared_ptr<orm::QueryResult> Executor::rollback(const std::shared_ptr<orm::
 oatpp::String Executor::getSchemaVersionTableName(const oatpp::String& suffix) {
   data::stream::BufferOutputStream stream;
   stream << "oatpp_schema_version";
-  if (suffix && suffix->getSize() > 0) {
+  if (suffix && suffix->size() > 0) {
     stream << "_" << suffix;
   }
   return stream.toString();
@@ -278,7 +280,7 @@ v_int64 Executor::getSchemaVersion(const oatpp::String& suffix,
     result = exec(stream.toString(), connection);
     if(!result->isSuccess()) {
       throw std::runtime_error("[oatpp::sqlite::Executor::getSchemaVersion()]: "
-                               "Error. Can't create schema version table. " + result->getErrorMessage()->std_str());
+                               "Error. Can't create schema version table. " + result->getErrorMessage());
     }
   }
 
@@ -287,7 +289,7 @@ v_int64 Executor::getSchemaVersion(const oatpp::String& suffix,
   result = exec(stream.toString(), result->getConnection());
   if(!result->isSuccess()) {
     throw std::runtime_error("[oatpp::sqlite::Executor::getSchemaVersion()]: "
-                             "Error. Can't get schema version. " + result->getErrorMessage()->std_str());
+                             "Error. Can't get schema version. " + result->getErrorMessage());
   }
 
   auto rows = result->fetch<oatpp::Vector<oatpp::Object<VersionRow>>>();
@@ -303,7 +305,7 @@ v_int64 Executor::getSchemaVersion(const oatpp::String& suffix,
     }
 
     throw std::runtime_error("[oatpp::sqlite::Executor::getSchemaVersion()]: "
-                             "Error. Can't init schema version. " + result->getErrorMessage()->std_str());
+                             "Error. Can't init schema version. " + result->getErrorMessage());
 
   } else if(rows->size() == 1) {
 
@@ -345,7 +347,7 @@ void Executor::migrateSchema(const oatpp::String& script,
     throw std::runtime_error("[oatpp::sqlite::Executor::migrateSchema()]: Error. +1 version increment is allowed only.");
   }
 
-  if(script->getSize() == 0) {
+  if(script->size() == 0) {
     OATPP_LOGW("[oatpp::sqlite::Executor::migrateSchema()]", "Warning. Executing empty script for version %d", newVersion);
   }
 

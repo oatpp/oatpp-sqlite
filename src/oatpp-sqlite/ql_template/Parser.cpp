@@ -62,7 +62,7 @@ oatpp::String Parser::preprocess(const oatpp::String& text, std::vector<CleanSec
 
       case '<': {
         if(sectionStart == -1) {
-          if(caret.isAtText((p_char8) "<!!", 3, true)) {
+          if(caret.isAtText("<!!", 3, true)) {
             sectionStart = ss.getCurrentPosition();
             writeChar = false;
           } else {
@@ -76,7 +76,7 @@ oatpp::String Parser::preprocess(const oatpp::String& text, std::vector<CleanSec
 
       case '!': {
         if(sectionStart != -1) {
-          if(caret.isAtText((p_char8) "!!>", 3, true)) {
+          if(caret.isAtText("!!>", 3, true)) {
             cleanSections.emplace_back(CleanSection(sectionStart, ss.getCurrentPosition() - sectionStart));
             sectionStart = -1;
             writeChar = false;
@@ -154,13 +154,13 @@ void Parser::skipStringInDollars(parser::Caret& caret) {
       return;
     }
     caret.inc();
-    auto term = label.toString(false);
+    auto term = label.toString();
 
     while(caret.canContinue()) {
 
       if(caret.findChar('$')) {
         caret.inc();
-        if(caret.isAtText(term->getData(), term->getSize(), true)) {
+        if(caret.isAtText(term->data(), term->size(), true)) {
           return;
         }
       }

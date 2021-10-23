@@ -157,14 +157,14 @@ void BlobTest::onRun() {
     {
       auto row = BlobsRow::createShared();
       row->f_string = "";
-      row->f_blob = base::StrBuffer::createShared("");
+      row->f_blob = std::make_shared<std::string>("");
       client.insertBlobValues(row, connection);
     }
 
     {
       auto row = BlobsRow::createShared();
       row->f_string = "Hello Oat++";
-      row->f_blob = base::StrBuffer::createShared("Hello Oat++");
+      row->f_blob = std::make_shared<std::string>("Hello Oat++");
       client.insertBlobValues(row, connection);
     }
   }
