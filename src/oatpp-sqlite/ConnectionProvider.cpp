@@ -32,7 +32,8 @@ void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr
 }
 
 ConnectionProvider::ConnectionProvider(const oatpp::String& connectionString)
-  : m_connectionString(connectionString)
+  : m_invalidator(std::make_shared<ConnectionInvalidator>())
+  , m_connectionString(connectionString)
 {}
 
 provider::ResourceHandle<Connection> ConnectionProvider::get() {
