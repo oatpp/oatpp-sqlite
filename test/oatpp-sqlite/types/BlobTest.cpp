@@ -88,7 +88,11 @@ void BlobTest::onRun() {
   std::remove(TEST_DB_FILE);
 
   auto connectionProvider = std::make_shared<oatpp::sqlite::ConnectionProvider>(TEST_DB_FILE);
-  auto executor = std::make_shared<oatpp::sqlite::Executor>(connectionProvider);
+  auto connectionPool = oatpp::sqlite::ConnectionPool::createShared(connectionProvider,
+                                                                    10,
+                                                                    std::chrono::seconds(3));
+
+  auto executor = std::make_shared<oatpp::sqlite::Executor>(connectionPool);
 
   auto client = MyClient(executor);
 
@@ -209,6 +213,8 @@ void BlobTest::onRun() {
     }
 
   }
+
+  connectionPool->stop();
 
 }
 

@@ -37,6 +37,8 @@ namespace oatpp { namespace sqlite {
  * Implementation of &id:oatpp::orm::Connection; for SQLite.
  */
 class Connection : public orm::Connection {
+private:
+  std::shared_ptr<provider::Invalidator<Connection>> m_invalidator;
 public:
 
   /**
@@ -47,6 +49,9 @@ public:
 
   virtual void setPrepared(const oatpp::String& statementName) = 0;
   virtual bool isPrepared(const oatpp::String& statementName) = 0;
+
+  void setInvalidator(const std::shared_ptr<provider::Invalidator<Connection>>& invalidator);
+  std::shared_ptr<provider::Invalidator<Connection>> getInvalidator();
 
 };
 

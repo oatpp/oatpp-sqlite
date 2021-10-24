@@ -54,8 +54,19 @@ class VersionRow : public oatpp::DTO {
 
 }
 
-Executor::Executor(const std::shared_ptr<provider::Provider<orm::Connection>>& connectionProvider)
-  : m_connectionProvider(connectionProvider)
+void Executor::ConnectionInvalidator::invalidate(const std::shared_ptr<orm::Connection>& connection) {
+  auto c = std::static_pointer_cast<Connection>(connection);
+  auto invalidator = c->getInvalidator();
+  if(!invalidator) {
+    throw std::runtime_error("[oatpp::sqlite::Executor::ConnectionInvalidator::invalidate()]: Error. "
+                             "Connection invalidator was NOT set.");
+  }
+  invalidator->invalidate(c);
+}
+
+Executor::Executor(const std::shared_ptr<provider::Provider<Connection>>& connectionProvider)
+  : m_connectionInvalidator(std::make_shared<ConnectionInvalidator>())
+  , m_connectionProvider(connectionProvider)
   , m_resultMapper(std::make_shared<mapping::ResultMapper>())
 {
   m_defaultTypeResolver->addKnownClasses({
@@ -96,7 +107,12 @@ data::share::StringTemplate Executor::parseQueryTemplate(const oatpp::String& na
 provider::ResourceHandle<orm::Connection> Executor::getConnection() {
   auto connection = m_connectionProvider->get();
   if(connection) {
-    return connection;
+    /* set correct invalidator before cast */
+    connection.object->setInvalidator(connection.invalidator);
+    return provider::ResourceHandle<orm::Connection>(
+      connection.object,
+      m_connectionInvalidator
+    );
   }
   throw std::runtime_error("[oatpp::sqlite::Executor::getConnection()]: Error. Can't connect.");
 }

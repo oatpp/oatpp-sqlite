@@ -44,6 +44,16 @@ namespace oatpp { namespace sqlite {
 class Executor : public orm::Executor {
 private:
 
+  /*
+   * We need this invalidator to correlate abstract orm::Connection to its correct invalidator.
+   */
+  class ConnectionInvalidator : public provider::Invalidator<orm::Connection> {
+  public:
+    void invalidate(const std::shared_ptr<orm::Connection>& connection) override;
+  };
+
+private:
+
   struct QueryParameter {
     oatpp::String name;
     std::vector<std::string> propertyPath;
@@ -67,12 +77,13 @@ private:
                                                         const provider::ResourceHandle<orm::Connection>& connection);
 
 private:
-  std::shared_ptr<provider::Provider<orm::Connection>> m_connectionProvider;
+  std::shared_ptr<ConnectionInvalidator> m_connectionInvalidator;
+  std::shared_ptr<provider::Provider<Connection>> m_connectionProvider;
   std::shared_ptr<mapping::ResultMapper> m_resultMapper;
   mapping::Serializer m_serializer;
 public:
 
-  Executor(const std::shared_ptr<provider::Provider<orm::Connection>>& connectionProvider);
+  Executor(const std::shared_ptr<provider::Provider<Connection>>& connectionProvider);
 
   std::shared_ptr<data::mapping::TypeResolver> createTypeResolver() override;
 
