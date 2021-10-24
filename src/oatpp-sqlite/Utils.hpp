@@ -40,7 +40,7 @@ public:
    * @param connection - &id:oatpp::sqlite::Connection;.
    * @return
    */
-  static v_int64 getLastInsertRowId(const std::shared_ptr<orm::Connection>& connection);
+  static v_int64 getLastInsertRowId(const provider::ResourceHandle<orm::Connection>& connection);
 
 };
 

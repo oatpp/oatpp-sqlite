@@ -26,11 +26,9 @@
 
 namespace oatpp { namespace sqlite {
 
-v_int64 Utils::getLastInsertRowId(const std::shared_ptr<orm::Connection>& connection) {
-
-  auto c = std::static_pointer_cast<Connection>(connection);
+v_int64 Utils::getLastInsertRowId(const provider::ResourceHandle<orm::Connection>& connection) {
+  auto c = std::static_pointer_cast<Connection>(connection.object);
   return sqlite3_last_insert_rowid(c->getHandle());
-
 }
 
 }}
