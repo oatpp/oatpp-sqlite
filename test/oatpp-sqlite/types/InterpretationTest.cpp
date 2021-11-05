@@ -92,18 +92,21 @@ namespace __class {
 
     };
 
+  private:
+
+    static oatpp::Type* createType() {
+      oatpp::Type::Info info;
+      info.interpretationMap = {{"test", new Inter()}};
+      return new oatpp::Type(CLASS_ID, info);
+    }
+
   public:
 
     static const oatpp::ClassId CLASS_ID;
 
     static oatpp::Type *getType() {
-      static Type type(
-        CLASS_ID, nullptr, nullptr,
-        {
-          {"test", new Inter()}
-        }
-      );
-      return &type;
+      static Type* type = createType();
+      return type;
     }
 
   };
@@ -141,18 +144,21 @@ namespace __class {
 
     };
 
+  private:
+
+    static oatpp::Type* createType() {
+      oatpp::Type::Info info;
+      info.interpretationMap = {{"test", new Inter()}};
+      return new oatpp::Type(CLASS_ID, info);
+    }
+
   public:
 
     static const oatpp::ClassId CLASS_ID;
 
     static oatpp::Type *getType() {
-      static Type type(
-        CLASS_ID, nullptr, nullptr,
-        {
-          {"test", new Inter()}
-        }
-      );
-      return &type;
+      static Type* type = createType();
+      return type;
     }
 
   };
@@ -177,18 +183,21 @@ namespace __class {
 
     };
 
+  private:
+
+    static oatpp::Type* createType() {
+      oatpp::Type::Info info;
+      info.interpretationMap = {{"test", new Inter()}};
+      return new oatpp::Type(CLASS_ID, info);
+    }
+
   public:
 
     static const oatpp::ClassId CLASS_ID;
 
     static oatpp::Type *getType() {
-      static Type type(
-        CLASS_ID, nullptr, nullptr,
-        {
-          {"test", new Inter()}
-        }
-      );
-      return &type;
+      static Type* type = createType();
+      return type;
     }
 
   };

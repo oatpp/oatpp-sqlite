@@ -32,14 +32,15 @@ namespace __class {
 
   const oatpp::ClassId Blob::CLASS_ID("oatpp::sqlite::Blob");
 
+  oatpp::Type* Blob::createType() {
+    oatpp::Type::Info info;
+    info.interpretationMap = {{"sqlite", new Inter()}};
+    return new oatpp::Type(CLASS_ID, info);
+  }
+
   oatpp::Type* Blob::getType() {
-    static Type type(
-      CLASS_ID, nullptr, nullptr,
-      {
-        {"sqlite", new Inter()}
-      }
-    );
-    return &type;
+    static Type* type = createType();
+    return type;
   }
 
 }

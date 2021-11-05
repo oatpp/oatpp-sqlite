@@ -63,6 +63,8 @@ public:
 
   };
 
+private:
+  static oatpp::Type* createType();
 public:
 
   static const oatpp::ClassId CLASS_ID;
