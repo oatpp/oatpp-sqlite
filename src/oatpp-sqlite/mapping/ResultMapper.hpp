@@ -106,78 +106,11 @@ private:
   typedef oatpp::Void (*ReadRowsMethod)(ResultMapper*, ResultData*, const Type*, v_int64);
 private:
 
-  template<class Collection>
-  static oatpp::Void readRowAsList(ResultMapper* _this, ResultData* dbData, const Type* type) {
+  static oatpp::Void readOneRowAsCollection(ResultMapper* _this, ResultData* dbData, const Type* type);
+  static oatpp::Void readOneRowAsMap(ResultMapper* _this, ResultData* dbData, const Type* type);
+  static oatpp::Void readOneRowAsObject(ResultMapper* _this, ResultData* dbData, const Type* type);
 
-    auto polymorphicDispatcher = static_cast<const typename Collection::Class::PolymorphicDispatcher*>(type->polymorphicDispatcher);
-    auto listWrapper = polymorphicDispatcher->createObject();
-
-    const auto& list = listWrapper.template staticCast<Collection>();
-
-    const Type* itemType = *type->params.begin();
-
-    for(v_int32 i = 0; i < dbData->colCount; i ++) {
-      mapping::Deserializer::InData inData(dbData->stmt, i, dbData->typeResolver);
-      polymorphicDispatcher->addPolymorphicItem(listWrapper, _this->m_deserializer.deserialize(inData, itemType));
-    }
-
-    return listWrapper;
-
-  }
-
-  template<class Collection>
-  static oatpp::Void readRowAsKeyValue(ResultMapper* _this, ResultData* dbData, const Type* type) {
-
-    auto polymorphicDispatcher = static_cast<const typename Collection::Class::PolymorphicDispatcher*>(type->polymorphicDispatcher);
-    auto mapWrapper = polymorphicDispatcher->createObject();
-    const auto& map = mapWrapper.template staticCast<Collection>();
-
-    auto it = type->params.begin();
-    const Type* keyType = *it ++;
-    if(keyType->classId.id != oatpp::data::mapping::type::__class::String::CLASS_ID.id){
-      throw std::runtime_error("[oatpp::sqlite::mapping::ResultMapper::readRowAsKeyValue()]: Invalid map key. Key should be String");
-    }
-
-    const Type* valueType = *it;
-    for(v_int32 i = 0; i < dbData->colCount; i ++) {
-      mapping::Deserializer::InData inData(dbData->stmt, i, dbData->typeResolver);
-      polymorphicDispatcher->addPolymorphicItem(mapWrapper, dbData->colNames[i], _this->m_deserializer.deserialize(inData, valueType));
-    }
-
-    return mapWrapper;
-  }
-
-  static oatpp::Void readRowAsObject(ResultMapper* _this, ResultData* dbData, const Type* type);
-
-  template<class Collection>
-  static oatpp::Void readRowsAsList(ResultMapper* _this, ResultData* dbData, const Type* type, v_int64 count) {
-
-    auto polymorphicDispatcher = static_cast<const typename Collection::Class::PolymorphicDispatcher*>(type->polymorphicDispatcher);
-    auto listWrapper = polymorphicDispatcher->createObject();
-    const auto& list = listWrapper.template staticCast<Collection>();
-
-    if(count != 0) {
-
-      const Type *itemType = *type->params.begin();
-
-      v_int64 counter = 0;
-      while (dbData->hasMore) {
-        polymorphicDispatcher->addPolymorphicItem(listWrapper, _this->readOneRow(dbData, itemType));
-        ++dbData->rowIndex;
-        dbData->next();
-        if (count > 0) {
-          ++counter;
-          if (counter == count) {
-            break;
-          }
-        }
-      }
-
-    }
-
-    return listWrapper;
-
-  }
+  static oatpp::Void readRowsAsCollection(ResultMapper* _this, ResultData* dbData, const Type* type, v_int64 count);
 
 private:
   Deserializer m_deserializer;

@@ -120,7 +120,7 @@ void Serializer::serializeBlob(const Serializer* _this, sqlite3_stmt* stmt, v_ui
 void Serializer::serializeInt8(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   (void) _this;
   if(polymorph) {
-    auto v = polymorph.staticCast<oatpp::Int8>();
+    auto v = polymorph.cast<oatpp::Int8>();
     sqlite3_bind_int(stmt, paramIndex, (int) *v);
   } else {
     sqlite3_bind_null(stmt, paramIndex);
@@ -130,7 +130,7 @@ void Serializer::serializeInt8(const Serializer* _this, sqlite3_stmt* stmt, v_ui
 void Serializer::serializeUInt8(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   (void) _this;
   if(polymorph) {
-    auto v = polymorph.staticCast<oatpp::UInt8>();
+    auto v = polymorph.cast<oatpp::UInt8>();
     sqlite3_bind_int(stmt, paramIndex, (int) *v);
   } else {
     sqlite3_bind_null(stmt, paramIndex);
@@ -140,7 +140,7 @@ void Serializer::serializeUInt8(const Serializer* _this, sqlite3_stmt* stmt, v_u
 void Serializer::serializeInt16(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   (void) _this;
   if(polymorph) {
-    auto v = polymorph.staticCast<oatpp::Int16>();
+    auto v = polymorph.cast<oatpp::Int16>();
     sqlite3_bind_int(stmt, paramIndex, (int) *v);
   } else {
     sqlite3_bind_null(stmt, paramIndex);
@@ -150,7 +150,7 @@ void Serializer::serializeInt16(const Serializer* _this, sqlite3_stmt* stmt, v_u
 void Serializer::serializeUInt16(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   (void) _this;
   if(polymorph) {
-    auto v = polymorph.staticCast<oatpp::UInt16>();
+    auto v = polymorph.cast<oatpp::UInt16>();
     sqlite3_bind_int(stmt, paramIndex, (int) *v);
   } else {
     sqlite3_bind_null(stmt, paramIndex);
@@ -160,7 +160,7 @@ void Serializer::serializeUInt16(const Serializer* _this, sqlite3_stmt* stmt, v_
 void Serializer::serializeInt32(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   (void) _this;
   if(polymorph) {
-    auto v = polymorph.staticCast<oatpp::Int32>();
+    auto v = polymorph.cast<oatpp::Int32>();
     sqlite3_bind_int(stmt, paramIndex, (int) *v);
   } else {
     sqlite3_bind_null(stmt, paramIndex);
@@ -170,7 +170,7 @@ void Serializer::serializeInt32(const Serializer* _this, sqlite3_stmt* stmt, v_u
 void Serializer::serializeUInt32(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   (void) _this;
   if(polymorph) {
-    auto v = polymorph.staticCast<oatpp::UInt32>();
+    auto v = polymorph.cast<oatpp::UInt32>();
     sqlite3_bind_int64(stmt, paramIndex, (sqlite3_int64) *v);
   } else {
     sqlite3_bind_null(stmt, paramIndex);
@@ -180,7 +180,7 @@ void Serializer::serializeUInt32(const Serializer* _this, sqlite3_stmt* stmt, v_
 void Serializer::serializeInt64(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   (void) _this;
   if(polymorph) {
-    auto v = polymorph.staticCast<oatpp::Int64>();
+    auto v = polymorph.cast<oatpp::Int64>();
     sqlite3_bind_int64(stmt, paramIndex, (sqlite3_int64) *v);
   } else {
     sqlite3_bind_null(stmt, paramIndex);
@@ -190,7 +190,7 @@ void Serializer::serializeInt64(const Serializer* _this, sqlite3_stmt* stmt, v_u
 void Serializer::serializeUInt64(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   (void) _this;
   if(polymorph) {
-    auto v = polymorph.staticCast<oatpp::UInt64>();
+    auto v = polymorph.cast<oatpp::UInt64>();
     sqlite3_bind_int64(stmt, paramIndex, (sqlite3_int64) *v);
   } else {
     sqlite3_bind_null(stmt, paramIndex);
@@ -200,7 +200,7 @@ void Serializer::serializeUInt64(const Serializer* _this, sqlite3_stmt* stmt, v_
 void Serializer::serializeFloat32(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   (void) _this;
   if(polymorph) {
-    auto v = polymorph.staticCast<oatpp::Float32>();
+    auto v = polymorph.cast<oatpp::Float32>();
     sqlite3_bind_double(stmt, paramIndex, *v);
   } else{
     sqlite3_bind_null(stmt, paramIndex);
@@ -210,7 +210,7 @@ void Serializer::serializeFloat32(const Serializer* _this, sqlite3_stmt* stmt, v
 void Serializer::serializeFloat64(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   (void) _this;
   if(polymorph) {
-    auto v = polymorph.staticCast<oatpp::Float64>();
+    auto v = polymorph.cast<oatpp::Float64>();
     sqlite3_bind_double(stmt, paramIndex, *v);
   } else{
     sqlite3_bind_null(stmt, paramIndex);
@@ -220,7 +220,7 @@ void Serializer::serializeFloat64(const Serializer* _this, sqlite3_stmt* stmt, v
 void Serializer::serializeBoolean(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
   (void) _this;
   if(polymorph) {
-    auto v = polymorph.staticCast<oatpp::Boolean>();
+    auto v = polymorph.cast<oatpp::Boolean>();
     sqlite3_bind_int(stmt, paramIndex, (int)*v);
   } else {
     sqlite3_bind_null(stmt, paramIndex);
