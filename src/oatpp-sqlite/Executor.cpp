@@ -31,7 +31,6 @@
 #include "Types.hpp"
 
 #include "oatpp/orm/Transaction.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
 #include <vector>
