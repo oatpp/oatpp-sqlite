@@ -26,7 +26,7 @@
 #define oatpp_sqlite_mapping_type_Blob_hpp
 
 #include "oatpp/encoding/Base64.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace sqlite { namespace mapping { namespace type {
 
@@ -37,7 +37,7 @@ namespace __class {
 /**
  * Blob type. <br>
  */
-typedef oatpp::data::mapping::type::ObjectWrapper<std::string, __class::Blob> Blob;
+typedef oatpp::data::type::ObjectWrapper<std::string, __class::Blob> Blob;
 
 namespace __class {
 

@@ -17,7 +17,7 @@ add_executable(module-tests
         oatpp-sqlite/tests.cpp)
 
 set_target_properties(module-tests PROPERTIES
-        CXX_STANDARD 11
+        CXX_STANDARD 17
         CXX_EXTENSIONS OFF
         CXX_STANDARD_REQUIRED ON
 )

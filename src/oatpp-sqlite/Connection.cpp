@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "Connection.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace sqlite {
 
@@ -41,7 +42,7 @@ ConnectionImpl::ConnectionImpl(sqlite3* connection)
 ConnectionImpl::~ConnectionImpl() {
   auto res = sqlite3_close(m_connection);
   if(res != SQLITE_OK) {
-    OATPP_LOGE("[oatpp::sqlite::ConnectionImpl::~ConnectionImpl()]", "Error. Can't close database connection!");
+    OATPP_LOGe("[oatpp::sqlite::ConnectionImpl::~ConnectionImpl()]", "Error. Can't close database connection!");
   }
 }
 

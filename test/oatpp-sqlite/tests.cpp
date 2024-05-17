@@ -6,7 +6,7 @@
 #include "types/NumericTest.hpp"
 #include "types/InterpretationTest.hpp"
 
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/Environment.hpp"
 
 namespace {
 
@@ -24,9 +24,9 @@ void runTests() {
 }
 
 int main() {
-  oatpp::base::Environment::init();
+  oatpp::Environment::init();
   runTests();
-  OATPP_ASSERT(oatpp::base::Environment::getObjectsCount() == 0);
-  oatpp::base::Environment::destroy();
+  OATPP_ASSERT(oatpp::Environment::getObjectsCount() == 0);
+  oatpp::Environment::destroy();
   return 0;
 }

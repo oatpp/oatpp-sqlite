@@ -24,7 +24,7 @@
 
 #include "Blob.hpp"
 #include "oatpp/encoding/Hex.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace sqlite { namespace mapping { namespace type {
 

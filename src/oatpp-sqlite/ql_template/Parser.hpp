@@ -25,8 +25,8 @@
 #ifndef oatpp_sqlite_ql_template_Parser_hpp
 #define oatpp_sqlite_ql_template_Parser_hpp
 
-#include "oatpp/core/data/share/StringTemplate.hpp"
-#include "oatpp/core/parser/Caret.hpp"
+#include "oatpp/data/share/StringTemplate.hpp"
+#include "oatpp/utils/parser/Caret.hpp"
 
 #include <sqlite3.h>
 
@@ -71,9 +71,9 @@ public:
   };
 
 private:
-  static data::share::StringTemplate::Variable parseIdentifier(parser::Caret& caret);
-  static void skipStringInQuotes(parser::Caret& caret);
-  static void skipStringInDollars(parser::Caret& caret);
+  static data::share::StringTemplate::Variable parseIdentifier(utils::parser::Caret& caret);
+  static void skipStringInQuotes(utils::parser::Caret& caret);
+  static void skipStringInDollars(utils::parser::Caret& caret);
 public:
 
   /**

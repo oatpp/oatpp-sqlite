@@ -41,9 +41,9 @@ void ParserTest::onRun() {
     std::vector<Parser::CleanSection> sections;
     auto result = Parser::preprocess(text, sections);
 
-    OATPP_LOGD(TAG, "--- case ---");
-    OATPP_LOGD(TAG, "sql='%s'", text->c_str());
-    OATPP_LOGD(TAG, "res='%s'", result->c_str());
+    OATPP_LOGd(TAG, "--- case ---");
+    OATPP_LOGd(TAG, "sql='{}'", text);
+    OATPP_LOGd(TAG, "res='{}'", result);
 
     OATPP_ASSERT(result == text);
 
@@ -54,9 +54,9 @@ void ParserTest::onRun() {
     std::vector<Parser::CleanSection> sections;
     auto result = Parser::preprocess(text, sections);
 
-    OATPP_LOGD(TAG, "--- case ---");
-    OATPP_LOGD(TAG, "sql='%s'", text->c_str());
-    OATPP_LOGD(TAG, "res='%s'", result->c_str());
+    OATPP_LOGd(TAG, "--- case ---");
+    OATPP_LOGd(TAG, "sql='{}'", text);
+    OATPP_LOGd(TAG, "res='{}'", result);
 
     OATPP_ASSERT(result == text);
 
@@ -67,9 +67,9 @@ void ParserTest::onRun() {
     std::vector<Parser::CleanSection> sections;
     auto result = Parser::preprocess(text, sections);
 
-    OATPP_LOGD(TAG, "--- case ---");
-    OATPP_LOGD(TAG, "sql='%s'", text->c_str());
-    OATPP_LOGD(TAG, "res='%s'", result->c_str());
+    OATPP_LOGd(TAG, "--- case ---");
+    OATPP_LOGd(TAG, "sql='{}'", text);
+    OATPP_LOGd(TAG, "res='{}'", result);
 
     OATPP_ASSERT(sections.size() == 1);
     OATPP_ASSERT(result == "SELECT  *  FROM my_table;");
@@ -85,9 +85,9 @@ void ParserTest::onRun() {
     std::vector<Parser::CleanSection> sections;
     auto result = Parser::preprocess(text, sections);
 
-    OATPP_LOGD(TAG, "--- case ---");
-    OATPP_LOGD(TAG, "sql='%s'", text->c_str());
-    OATPP_LOGD(TAG, "res='%s'", result->c_str());
+    OATPP_LOGd(TAG, "--- case ---");
+    OATPP_LOGd(TAG, "sql='{}'", text);
+    OATPP_LOGd(TAG, "res='{}'", result);
 
     OATPP_ASSERT(sections.size() == 1);
     OATPP_ASSERT(result == "SELECT * FROM my_table;");
@@ -103,9 +103,9 @@ void ParserTest::onRun() {
     std::vector<Parser::CleanSection> sections;
     auto result = Parser::preprocess(text, sections);
 
-    OATPP_LOGD(TAG, "--- case ---");
-    OATPP_LOGD(TAG, "sql='%s'", text->c_str());
-    OATPP_LOGD(TAG, "res='%s'", result->c_str());
+    OATPP_LOGd(TAG, "--- case ---");
+    OATPP_LOGd(TAG, "sql='{}'", text);
+    OATPP_LOGd(TAG, "res='{}'", result);
 
     OATPP_ASSERT(sections.size() == 1);
     OATPP_ASSERT(result == "SELECT  *  FROM!!> my_table;");
@@ -121,9 +121,9 @@ void ParserTest::onRun() {
     std::vector<Parser::CleanSection> sections;
     auto result = Parser::preprocess(text, sections);
 
-    OATPP_LOGD(TAG, "--- case ---");
-    OATPP_LOGD(TAG, "sql='%s'", text->c_str());
-    OATPP_LOGD(TAG, "res='%s'", result->c_str());
+    OATPP_LOGd(TAG, "--- case ---");
+    OATPP_LOGd(TAG, "sql='{}'", text);
+    OATPP_LOGd(TAG, "res='{}'", result);
 
     OATPP_ASSERT(sections.size() == 1);
     OATPP_ASSERT(result == "SELECT  <!!*  FROM!!> my_table;");
@@ -139,9 +139,9 @@ void ParserTest::onRun() {
     std::vector<Parser::CleanSection> sections;
     auto result = Parser::preprocess(text, sections);
 
-    OATPP_LOGD(TAG, "--- case ---");
-    OATPP_LOGD(TAG, "sql='%s'", text->c_str());
-    OATPP_LOGD(TAG, "res='%s'", result->c_str());
+    OATPP_LOGd(TAG, "--- case ---");
+    OATPP_LOGd(TAG, "sql='{}'", text);
+    OATPP_LOGd(TAG, "res='{}'", result);
 
     OATPP_ASSERT(sections.size() == 0);
     OATPP_ASSERT(result == text);
@@ -152,9 +152,9 @@ void ParserTest::onRun() {
     std::vector<Parser::CleanSection> sections;
     auto result = Parser::preprocess(text, sections);
 
-    OATPP_LOGD(TAG, "--- case ---");
-    OATPP_LOGD(TAG, "sql='%s'", text->c_str());
-    OATPP_LOGD(TAG, "res='%s'", result->c_str());
+    OATPP_LOGd(TAG, "--- case ---");
+    OATPP_LOGd(TAG, "sql='{}'", text);
+    OATPP_LOGd(TAG, "res='{}'", result);
 
     OATPP_ASSERT(sections.size() == 2);
     OATPP_ASSERT(result == "SELECT  schedule[1:2][2]  FROM my_table;");
@@ -178,9 +178,9 @@ void ParserTest::onRun() {
     std::vector<Parser::CleanSection> sections;
     auto result = Parser::preprocess(text, sections);
 
-    OATPP_LOGD(TAG, "--- case ---");
-    OATPP_LOGD(TAG, "sql='%s'", text->c_str());
-    OATPP_LOGD(TAG, "res='%s'", result->c_str());
+    OATPP_LOGd(TAG, "--- case ---");
+    OATPP_LOGd(TAG, "sql='{}'", text);
+    OATPP_LOGd(TAG, "res='{}'", result);
 
     OATPP_ASSERT(sections.size() == 1);
     OATPP_ASSERT(result == "SELECT  * '!!>' FROM my_table;");
@@ -198,9 +198,9 @@ void ParserTest::onRun() {
     std::vector<Parser::CleanSection> sections;
     auto result = Parser::preprocess(text, sections);
 
-    OATPP_LOGD(TAG, "--- case ---");
-    OATPP_LOGD(TAG, "sql='%s'", text->c_str());
-    OATPP_LOGD(TAG, "res='%s'", result->c_str());
+    OATPP_LOGd(TAG, "--- case ---");
+    OATPP_LOGd(TAG, "sql='{}'", text);
+    OATPP_LOGd(TAG, "res='{}'", result);
 
     OATPP_ASSERT(sections.size() == 1);
     OATPP_ASSERT(result == "SELECT '<!!' *  FROM my_table;");
@@ -218,9 +218,9 @@ void ParserTest::onRun() {
     std::vector<Parser::CleanSection> sections;
     auto result = Parser::preprocess(text, sections);
 
-    OATPP_LOGD(TAG, "--- case ---");
-    OATPP_LOGD(TAG, "sql='%s'", text->c_str());
-    OATPP_LOGD(TAG, "res='%s'", result->c_str());
+    OATPP_LOGd(TAG, "--- case ---");
+    OATPP_LOGd(TAG, "sql='{}'", text);
+    OATPP_LOGd(TAG, "res='{}'", result);
 
     OATPP_ASSERT(sections.size() == 1);
     OATPP_ASSERT(result == "SELECT *  FROM my_table;");
@@ -239,9 +239,9 @@ void ParserTest::onRun() {
     auto temp = Parser::parseTemplate(text);
     auto result = temp.format("<val>");
 
-    OATPP_LOGD(TAG, "--- case ---");
-    OATPP_LOGD(TAG, "sql='%s'", text->c_str());
-    OATPP_LOGD(TAG, "res='%s'", result->c_str());
+    OATPP_LOGd(TAG, "--- case ---");
+    OATPP_LOGd(TAG, "sql='{}'", text);
+    OATPP_LOGd(TAG, "res='{}'", result);
 
     OATPP_ASSERT(result == "SELECT  name::text  FROM my_table WHERE id=<val>;");
   }
@@ -252,9 +252,9 @@ void ParserTest::onRun() {
     auto temp = Parser::parseTemplate(text);
     auto result = temp.format("<val>");
 
-    OATPP_LOGD(TAG, "--- case ---");
-    OATPP_LOGD(TAG, "sql='%s'", text->c_str());
-    OATPP_LOGD(TAG, "res='%s'", result->c_str());
+    OATPP_LOGd(TAG, "--- case ---");
+    OATPP_LOGd(TAG, "sql='{}'", text);
+    OATPP_LOGd(TAG, "res='{}'", result);
 
     OATPP_ASSERT(result == "SELECT  name::text  FROM my_table WHERE  id=:id ;");
   }

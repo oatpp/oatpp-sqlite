@@ -25,7 +25,7 @@
 #ifndef oatpp_sqlite_mapping_Serializer_hpp
 #define oatpp_sqlite_mapping_Serializer_hpp
 
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 #include <sqlite3.h>
 
 namespace oatpp { namespace sqlite { namespace mapping {
@@ -42,7 +42,7 @@ public:
 
   Serializer();
 
-  void setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method);
+  void setSerializerMethod(const data::type::ClassId& classId, SerializerMethod method);
 
   void serialize(sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) const;
 

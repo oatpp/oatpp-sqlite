@@ -25,8 +25,8 @@
 #ifndef oatpp_sqlite_mapping_Deserializer_hpp
 #define oatpp_sqlite_mapping_Deserializer_hpp
 
-#include "oatpp/core/data/mapping/TypeResolver.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/data/mapping/TypeResolver.hpp"
+#include "oatpp/Types.hpp"
 
 #include <sqlite3.h>
 
@@ -37,7 +37,7 @@ namespace oatpp { namespace sqlite { namespace mapping {
  */
 class Deserializer {
 public:
-  typedef oatpp::data::mapping::type::Type Type;
+  typedef oatpp::data::type::Type Type;
 public:
 
   struct InData {
@@ -64,7 +64,7 @@ public:
 
   Deserializer();
 
-  void setDeserializerMethod(const data::mapping::type::ClassId& classId, DeserializerMethod method);
+  void setDeserializerMethod(const data::type::ClassId& classId, DeserializerMethod method);
 
   oatpp::Void deserialize(const InData& data, const Type* type) const;
 

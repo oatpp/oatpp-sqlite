@@ -25,8 +25,8 @@
 #include "InterpretationTest.hpp"
 
 #include "oatpp-sqlite/orm.hpp"
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
-#include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
+#include "oatpp/utils/Conversion.hpp"
 
 #include <limits>
 #include <cstdio>
@@ -54,9 +54,9 @@ namespace __class {
  class StringNumberClass;
 }
 
-typedef oatpp::data::mapping::type::Primitive<VPoint, __class::PointClass> Point;
-typedef oatpp::data::mapping::type::Primitive<VLine, __class::LineClass> Line;
-typedef oatpp::data::mapping::type::ObjectWrapper<std::string, __class::StringNumberClass> StringNumber;
+typedef oatpp::data::type::Primitive<VPoint, __class::PointClass> Point;
+typedef oatpp::data::type::Primitive<VLine, __class::LineClass> Line;
+typedef oatpp::data::type::ObjectWrapper<std::string, __class::StringNumberClass> StringNumber;
 
 namespace __class {
 
@@ -77,7 +77,7 @@ namespace __class {
     public:
 
       oatpp::Object<PointDto> interpret(const Point &value) const override {
-        OATPP_LOGD("Point::Interpretation", "interpret");
+        OATPP_LOGd("Point::Interpretation", "interpret");
         auto dto = PointDto::createShared();
         dto->x = value->x;
         dto->y = value->y;
@@ -86,7 +86,7 @@ namespace __class {
       }
 
       Point reproduce(const oatpp::Object<PointDto> &value) const override {
-        OATPP_LOGD("Point::Interpretation", "reproduce");
+        OATPP_LOGd("Point::Interpretation", "reproduce");
         return Point({value->x, value->y, value->z});
       }
 
@@ -129,7 +129,7 @@ namespace __class {
     public:
 
       oatpp::Object<LineDto> interpret(const Line &value) const override {
-        OATPP_LOGD("Line::Interpretation", "interpret");
+        OATPP_LOGd("Line::Interpretation", "interpret");
         auto dto = LineDto::createShared();
         dto->p1 = {value->p1.x, value->p1.y, value->p1.z};
         dto->p2 = {value->p2.x, value->p2.y, value->p2.z};
@@ -137,7 +137,7 @@ namespace __class {
       }
 
       Line reproduce(const oatpp::Object<LineDto> &value) const override {
-        OATPP_LOGD("Line::Interpretation", "reproduce");
+        OATPP_LOGd("Line::Interpretation", "reproduce");
         return Line({{value->p1->x, value->p1->y, value->p1->z},
                      {value->p2->x, value->p2->y, value->p2->z}});
       }
@@ -172,13 +172,13 @@ namespace __class {
     public:
 
       oatpp::Int64 interpret(const StringNumber& value) const override {
-        OATPP_LOGD("StringNumber::Interpretation", "interpret");
-        return oatpp::utils::conversion::strToInt64(value->c_str());
+        OATPP_LOGd("StringNumber::Interpretation", "interpret");
+        return oatpp::utils::Conversion::strToInt64(value->c_str());
       }
 
       StringNumber reproduce(const oatpp::Int64& value) const override {
-        OATPP_LOGD("StringNumber::Interpretation", "reproduce");
-        return oatpp::utils::conversion::int64ToStr(value).getPtr();
+        OATPP_LOGd("StringNumber::Interpretation", "reproduce");
+        return oatpp::utils::Conversion::int64ToStr(value).getPtr();
       }
 
     };
@@ -236,7 +236,7 @@ public:
     migration.migrate();
 
     auto version = executor->getSchemaVersion("InterpretationTest");
-    OATPP_LOGD("DbClient", "Migration - OK. Version=%d.", version);
+    OATPP_LOGd("DbClient", "Migration - OK. Version={}.", version);
 
     setEnabledInterpretations({"test"});
 
@@ -268,7 +268,7 @@ public:
 
 void InterpretationTest::onRun() {
 
-  OATPP_LOGI(TAG, "DB-File='%s'", TEST_DB_FILE);
+  OATPP_LOGi(TAG, "DB-File='{}'", TEST_DB_FILE);
   std::remove(TEST_DB_FILE);
 
   auto connectionProvider = std::make_shared<oatpp::sqlite::ConnectionProvider>(TEST_DB_FILE);
@@ -309,21 +309,21 @@ void InterpretationTest::onRun() {
   {
     auto res = client.selectPoints();
     if(res->isSuccess()) {
-      OATPP_LOGD(TAG, "OK, knownCount=%d, hasMore=%d", res->getKnownCount(), res->hasMoreToFetch());
+      OATPP_LOGd(TAG, "OK, knownCount={}, hasMore={}", res->getKnownCount(), res->hasMoreToFetch());
     } else {
       auto message = res->getErrorMessage();
-      OATPP_LOGD(TAG, "Error, message=%s", message->c_str());
+      OATPP_LOGd(TAG, "Error, message={}", message);
     }
 
     auto dataset = res->fetch<oatpp::Vector<Point>>();
 
-    oatpp::parser::json::mapping::ObjectMapper om;
-    om.getSerializer()->getConfig()->useBeautifier = true;
-    om.getSerializer()->getConfig()->enabledInterpretations = {"sqlite", "test"};
+    oatpp::json::ObjectMapper om;
+    om.serializerConfig().json.useBeautifier = true;
+    om.serializerConfig().mapper.enabledInterpretations = {"sqlite", "test"};
 
     auto str = om.writeToString(dataset);
 
-    OATPP_LOGD(TAG, "res=%s", str->c_str());
+    OATPP_LOGd(TAG, "res={}", str);
 
     OATPP_ASSERT(dataset->size() == 3);
 
@@ -393,21 +393,21 @@ void InterpretationTest::onRun() {
   {
     auto res = client.selectLines();
     if(res->isSuccess()) {
-      OATPP_LOGD(TAG, "OK, knownCount=%d, hasMore=%d", res->getKnownCount(), res->hasMoreToFetch());
+      OATPP_LOGd(TAG, "OK, knownCount={}, hasMore={}", res->getKnownCount(), res->hasMoreToFetch());
     } else {
       auto message = res->getErrorMessage();
-      OATPP_LOGD(TAG, "Error, message=%s", message->c_str());
+      OATPP_LOGd(TAG, "Error, message={}", message)
     }
 
     auto dataset = res->fetch<oatpp::Vector<oatpp::Object<LineInterRow>>>();
 
-    oatpp::parser::json::mapping::ObjectMapper om;
-    om.getSerializer()->getConfig()->useBeautifier = true;
-    om.getSerializer()->getConfig()->enabledInterpretations = {"sqlite", "test"};
+    oatpp::json::ObjectMapper om;
+    om.serializerConfig().json.useBeautifier = true;
+    om.serializerConfig().mapper.enabledInterpretations = {"sqlite", "test"};
 
     auto str = om.writeToString(dataset);
 
-    OATPP_LOGD(TAG, "res=%s", str->c_str());
+    OATPP_LOGd(TAG, "res={}", str)
 
     OATPP_ASSERT(dataset->size() == 3);
 

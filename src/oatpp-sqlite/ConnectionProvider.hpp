@@ -27,8 +27,8 @@
 
 #include "Connection.hpp"
 
-#include "oatpp/core/provider/Pool.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/provider/Pool.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace sqlite {
 

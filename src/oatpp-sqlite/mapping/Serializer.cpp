@@ -36,36 +36,36 @@ namespace oatpp { namespace sqlite { namespace mapping {
 
 Serializer::Serializer() {
 
-  m_methods.resize(data::mapping::type::ClassId::getClassCount(), nullptr);
+  m_methods.resize(data::type::ClassId::getClassCount(), nullptr);
 
-  setSerializerMethod(data::mapping::type::__class::String::CLASS_ID, &Serializer::serializeString);
-  setSerializerMethod(data::mapping::type::__class::Any::CLASS_ID, nullptr);
+  setSerializerMethod(data::type::__class::String::CLASS_ID, &Serializer::serializeString);
+  setSerializerMethod(data::type::__class::Any::CLASS_ID, nullptr);
 
-  setSerializerMethod(data::mapping::type::__class::Int8::CLASS_ID, &Serializer::serializeInt8);
-  setSerializerMethod(data::mapping::type::__class::UInt8::CLASS_ID, &Serializer::serializeUInt8);
+  setSerializerMethod(data::type::__class::Int8::CLASS_ID, &Serializer::serializeInt8);
+  setSerializerMethod(data::type::__class::UInt8::CLASS_ID, &Serializer::serializeUInt8);
 
-  setSerializerMethod(data::mapping::type::__class::Int16::CLASS_ID, &Serializer::serializeInt16);
-  setSerializerMethod(data::mapping::type::__class::UInt16::CLASS_ID, &Serializer::serializeUInt16);
+  setSerializerMethod(data::type::__class::Int16::CLASS_ID, &Serializer::serializeInt16);
+  setSerializerMethod(data::type::__class::UInt16::CLASS_ID, &Serializer::serializeUInt16);
 
-  setSerializerMethod(data::mapping::type::__class::Int32::CLASS_ID, &Serializer::serializeInt32);
-  setSerializerMethod(data::mapping::type::__class::UInt32::CLASS_ID, &Serializer::serializeUInt32);
+  setSerializerMethod(data::type::__class::Int32::CLASS_ID, &Serializer::serializeInt32);
+  setSerializerMethod(data::type::__class::UInt32::CLASS_ID, &Serializer::serializeUInt32);
 
-  setSerializerMethod(data::mapping::type::__class::Int64::CLASS_ID, &Serializer::serializeInt64);
-  setSerializerMethod(data::mapping::type::__class::UInt64::CLASS_ID, &Serializer::serializeUInt64);
+  setSerializerMethod(data::type::__class::Int64::CLASS_ID, &Serializer::serializeInt64);
+  setSerializerMethod(data::type::__class::UInt64::CLASS_ID, &Serializer::serializeUInt64);
 
-  setSerializerMethod(data::mapping::type::__class::Float32::CLASS_ID, &Serializer::serializeFloat32);
-  setSerializerMethod(data::mapping::type::__class::Float64::CLASS_ID, &Serializer::serializeFloat64);
-  setSerializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, &Serializer::serializeBoolean);
+  setSerializerMethod(data::type::__class::Float32::CLASS_ID, &Serializer::serializeFloat32);
+  setSerializerMethod(data::type::__class::Float64::CLASS_ID, &Serializer::serializeFloat64);
+  setSerializerMethod(data::type::__class::Boolean::CLASS_ID, &Serializer::serializeBoolean);
 
-  setSerializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, nullptr);
-  setSerializerMethod(data::mapping::type::__class::AbstractEnum::CLASS_ID, &Serializer::serializeEnum);
+  setSerializerMethod(data::type::__class::AbstractObject::CLASS_ID, nullptr);
+  setSerializerMethod(data::type::__class::AbstractEnum::CLASS_ID, &Serializer::serializeEnum);
 
-  setSerializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, nullptr);
-  setSerializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, nullptr);
-  setSerializerMethod(data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID, nullptr);
+  setSerializerMethod(data::type::__class::AbstractVector::CLASS_ID, nullptr);
+  setSerializerMethod(data::type::__class::AbstractList::CLASS_ID, nullptr);
+  setSerializerMethod(data::type::__class::AbstractUnorderedSet::CLASS_ID, nullptr);
 
-  setSerializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, nullptr);
-  setSerializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, nullptr);
+  setSerializerMethod(data::type::__class::AbstractPairList::CLASS_ID, nullptr);
+  setSerializerMethod(data::type::__class::AbstractUnorderedMap::CLASS_ID, nullptr);
 
   // sqlite
 
@@ -73,7 +73,7 @@ Serializer::Serializer() {
 
 }
 
-void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method) {
+void Serializer::setSerializerMethod(const data::type::ClassId& classId, SerializerMethod method) {
   const v_uint32 id = classId.id;
   if(id >= m_methods.size()) {
     m_methods.resize(id + 1, nullptr);
@@ -228,20 +228,20 @@ void Serializer::serializeBoolean(const Serializer* _this, sqlite3_stmt* stmt, v
 
 void Serializer::serializeEnum(const Serializer* _this, sqlite3_stmt* stmt, v_uint32 paramIndex, const oatpp::Void& polymorph) {
 
-  auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
+  auto polymorphicDispatcher = static_cast<const data::type::__class::AbstractEnum::PolymorphicDispatcher*>(
     polymorph.getValueType()->polymorphicDispatcher
   );
 
-  data::mapping::type::EnumInterpreterError e = data::mapping::type::EnumInterpreterError::OK;
-  const auto& enumInterpretation = polymorphicDispatcher->toInterpretation(polymorph, e);
+  data::type::EnumInterpreterError e = data::type::EnumInterpreterError::OK;
+  const auto& enumInterpretation = polymorphicDispatcher->toInterpretation(polymorph, false, e);
 
-  if(e == data::mapping::type::EnumInterpreterError::OK) {
+  if(e == data::type::EnumInterpreterError::OK) {
     _this->serialize(stmt, paramIndex, enumInterpretation);
     return;
   }
 
   switch(e) {
-    case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
+    case data::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
       throw std::runtime_error("[oatpp::sqlite::mapping::Serializer::serializeEnum()]: Error. Enum constraint violated - 'NotNull'.");
     default:
       throw std::runtime_error("[oatpp::sqlite::mapping::Serializer::serializeEnum()]: Error. Can't serialize Enum.");

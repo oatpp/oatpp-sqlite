@@ -26,8 +26,8 @@
 #define oatpp_sqlite_mapping_ResultMapper_hpp
 
 #include "Deserializer.hpp"
-#include "oatpp/core/data/mapping/TypeResolver.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/data/mapping/TypeResolver.hpp"
+#include "oatpp/Types.hpp"
 
 #include <sqlite3.h>
 
@@ -101,7 +101,7 @@ public:
   };
 
 private:
-  typedef oatpp::data::mapping::type::Type Type;
+  typedef oatpp::data::type::Type Type;
   typedef oatpp::Void (*ReadOneRowMethod)(ResultMapper*, ResultData*, const Type*);
   typedef oatpp::Void (*ReadRowsMethod)(ResultMapper*, ResultData*, const Type*, v_int64);
 private:
@@ -128,14 +128,14 @@ public:
    * @param classId
    * @param method
    */
-  void setReadOneRowMethod(const data::mapping::type::ClassId& classId, ReadOneRowMethod method);
+  void setReadOneRowMethod(const data::type::ClassId& classId, ReadOneRowMethod method);
 
   /**
    * Set "read rows" method for class id.
    * @param classId
    * @param method
    */
-  void setReadRowsMethod(const data::mapping::type::ClassId& classId, ReadRowsMethod method);
+  void setReadRowsMethod(const data::type::ClassId& classId, ReadRowsMethod method);
 
   /**
    * Read one row to oatpp object or collection. <br>

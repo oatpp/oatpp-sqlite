@@ -31,7 +31,10 @@
 #include "Types.hpp"
 
 #include "oatpp/orm/Transaction.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+
+#include "oatpp/base/Log.hpp"
+#include "oatpp/macro/codegen.hpp"
+
 
 #include <vector>
 
@@ -118,7 +121,7 @@ provider::ResourceHandle<orm::Connection> Executor::getConnection() {
 
 Executor::QueryParameter Executor::parseQueryParameter(const oatpp::String& paramName) {
 
-  parser::Caret caret(paramName);
+  utils::parser::Caret caret(paramName);
   auto nameLabel = caret.putLabel();
   if(caret.findChar('.') && caret.getPosition() < caret.getDataSize() - 1) {
 
@@ -362,7 +365,7 @@ void Executor::migrateSchema(const oatpp::String& script,
   }
 
   if(script->size() == 0) {
-    OATPP_LOGW("[oatpp::sqlite::Executor::migrateSchema()]", "Warning. Executing empty script for version %d", newVersion);
+    OATPP_LOGw("[oatpp::sqlite::Executor::migrateSchema()]", "Warning. Executing empty script for version {}", newVersion);
   }
 
   {
@@ -374,7 +377,7 @@ void Executor::migrateSchema(const oatpp::String& script,
     sqlite3_exec(nativeConnection->getHandle(), script->c_str(), nullptr, nullptr, &errmsg);
 
     if(errmsg) {
-      OATPP_LOGE("[oatpp::sqlite::Executor::migrateSchema()]", "Error. Migration failed for version %d. %s", newVersion, errmsg);
+      OATPP_LOGe("[oatpp::sqlite::Executor::migrateSchema()]", "Error. Migration failed for version {}. {}", newVersion, errmsg);
       throw std::runtime_error("[oatpp::sqlite::Executor::migrateSchema()]: Error. Migration failed. " + std::string((const char*) errmsg));
     }
 

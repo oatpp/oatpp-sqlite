@@ -26,7 +26,7 @@
 #define oatpp_sqlite_ql_template_TemplateValueProvider_hpp
 
 #include "oatpp/orm/Executor.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace sqlite { namespace ql_template {
 

@@ -26,8 +26,8 @@
 #define oatpp_sqlite_Connection_hpp
 
 #include "oatpp/orm/Connection.hpp"
-#include "oatpp/core/provider/Pool.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/provider/Pool.hpp"
+#include "oatpp/Types.hpp"
 
 #include <sqlite3.h>
 
