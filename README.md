@@ -5,7 +5,7 @@ SQLite adapter for Oat++ ORM.
 More about Oat++:
 
 - [Oat++ Website](https://oatpp.io/)
-- [Oat++ Github Repository](https://github.com/oatpp/oatpp)
+- [Oat++ GitHub Repository](https://github.com/oatpp/oatpp)
 - [Oat++ ORM](https://oatpp.io/docs/components/orm/)
 
 ## Build And Install
@@ -15,7 +15,8 @@ More about Oat++:
 - Install the main [oatpp](https://github.com/oatpp/oatpp) module.
 - Install SQLite.  
    *Note: You can also use `-DOATPP_SQLITE_AMALGAMATION=ON` to install oatpp-sqlite together with [SQLite amalgamation](https://www.sqlite.org/amalgamation.html) 
-   in which case you don't need to install SQLite*
+   in which case you don't need to install SQLite*  
+  (Current version `3.45.3`)
 
 ### Install module
 
