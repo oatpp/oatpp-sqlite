@@ -88,6 +88,6 @@ jobs:
         displayName: 'Build - module'
         workingDirectory: build
       - script: |
-          module-tests.exe
+          oatpp-sqlite-tests.exe
         displayName: 'Test'
         workingDirectory: build\test\Debug\
